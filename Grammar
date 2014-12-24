@@ -1,0 +1,86 @@
+Program:
+	[Statement ';']*
+
+Statement:
+	Assignment
+	Declaration
+	FunctionDeclaration
+	FunctionDefinition
+	FunctionCall
+	StatementExpression
+	Return
+	Block
+
+Expression:
+	'(' Expression ')'
+	Expression ',' Expression
+	Expression BinaryOp Expression
+	UnaryOp Expression
+	FunctionCall
+	Assignment
+	Identifier
+	LiteralNumber
+
+Return:
+	'return' Expression
+
+Assignment:
+	Identifier '=' Expression
+
+Declaration:
+	Identifier Type ['=' Expression]
+	// Type inference
+	// Const qualifiers 
+
+FunctionDeclaration:
+	'func' Identifier ['(' [ArgumentList] ')'] ['->' Type]
+
+FunctionDefinition:
+	FunctionDeclaration Block
+	
+FunctionCall:
+	Identifier '(' [ArgumentList] ')'
+
+Block:
+	'{' [Statement ';']* '}'
+
+Argument:
+	[Identifier] Type
+
+ArgumentList:
+ 	Argument [',' Argument]*
+
+BinaryOp:
+	'+'
+	'-'
+	'*'
+	'/'
+
+UnaryOp:
+	'-'
+	'@' // Deref
+	'^' // Address of
+	'!'
+
+Identifier:
+	[A-Za-z_][A-Za-z_0-9]* // Include unicode eventually
+
+Type:
+	void
+
+	[u]int8
+	[u]int16
+	[u]int32
+	[u]int64
+	float32
+	float64
+
+	[u]char
+
+	'func' ['(' [ArgumentList] ')'] ['->' Type]
+
+	Type '[' [Identifier|LiteralNumber] ']' // Static/Dynamic Array
+	Type '^' // Pointer
+
+LiteralNumber:
+	[0-9]*[.[0-9]]

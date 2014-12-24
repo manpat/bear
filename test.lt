@@ -1,0 +1,26 @@
+// Comments
+/*
+func thing() { // More comments
+	things.things();
+}
+
+func anotherthing(arg ArgType[], anotherarg TypeOfSomeDescription) -> ReturnType {
+	return arg; // More comments
+}*/
+
+
+thing int32 = (111 + 222 * 333);
+thing = "i am a string";
+thing2 string = @^thing;
+
+//thing1 = (thing2 = thing3);
+
+//func thing(arg1 int32^, arg2 uint8[4]) -> uint8[]{
+//	arg2[0] = @arg1;
+//	return arg1;
+//}
+
+//// Parenthesis optional
+//func main { 
+//	thing();
+//}
