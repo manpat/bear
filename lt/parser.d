@@ -117,7 +117,7 @@ class Parser {
 	private Token* current;
 	private Token* lookahead;
 
-	ASTNode* Analyse(Token[] _tokens){
+	ASTNode* Parse(Token[] _tokens){
 		tokens = _tokens;
 		pos = 0;
 

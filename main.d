@@ -17,7 +17,7 @@ void main(){
 		writeln("\n");
 
 		auto parser = new Parser();
-		auto ast = parser.Analyse(tokens);
+		auto ast = parser.Parse(tokens);
 
 		writeln("Syntactic analysis done\n");
 		writeln(ast.toString);

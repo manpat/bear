@@ -9,7 +9,7 @@ func anotherthing(arg ArgType[], anotherarg TypeOfSomeDescription) -> ReturnType
 }*/
 
 
-thing int32 = (111 + 222 * 333);
+thing int32 = (111 * 222 + 333);
 thing = "i am a string";
 thing2 string = @^thing;
 
