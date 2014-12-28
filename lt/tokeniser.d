@@ -28,6 +28,7 @@ struct Token {
 		At,
 		Returns,
 		Function,
+		Return,
 		Comma,
 
 		Plus, Minus,
@@ -77,8 +78,8 @@ class Tokeniser {
 			(?P<Not>!)						|
 
 			(?P<Type>
-				void|u?int(?:8|16|32|64)|
-				float(?:32|64)|u?char|
+				void|u?short|u?int|u?long|
+				float|double|u?char|
 				string)						|
 
 			(?P<Comma>,)					|

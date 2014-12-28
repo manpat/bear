@@ -20,11 +20,11 @@ class Parser {
 
 private:
 	void Error(string e){
-		writeln("error: ", e);
+		throw new Exception("parser: " ~ e);
 	}
 
 	void InternalError(string e){
-		throw new Exception("internal error: ", e);
+		throw new Exception("parser internal: " ~ e);
 	}
 
 	void ReadNext(){
@@ -76,7 +76,7 @@ private:
 		ASTNode* node = null;
 
 		if(!Check(TT.EOF)){
-			node = ParseExpression();
+			node = ParseStatementList();
 		}
 
 		Match(TT.EOF);
@@ -93,33 +93,82 @@ private:
 
 		auto node = new ASTNode(AT.StatementList);
 		node.left = ParseStatement();
-		node.right = ParseStatementList();
+		if(node.left) node.right = ParseStatementList();
 
 		return node;
 	}
 
 	ASTNode* ParseStatement(){
 		auto __sd = ScopeDebug("ParseStatement");
+		ASTNode* node = null;
 
-		return null;
+		if(Check(TT.Identifier)){
+			node = ParseDeclOrAssign();
+
+		}else if(Check(TT.Function)){
+			node = ParseFuncDeclOrDef();
+
+		}else if(Check(TT.Return)){
+			node = ParseReturn();
+
+		}else if(Check(TT.LeftBrace)){
+			node = ParseBlock();
+
+		}else{
+			if(!Check(TT.RightBrace))
+				Error("Statements cannot begin with " ~ to!string(next.type));
+		}
+
+		return node;
 	}
 
 	// Declarations and Assignments //////////////////////
 
 	ASTNode* ParseDeclOrAssign(){
 		auto __sd = ScopeDebug("ParseDeclOrAssign");
+		auto id = ParseIdentifier();
+		ASTNode* node = null;
 
-		return null;
+		auto type = ParseOptionalType();
+		if(type) {
+			node = new ASTNode(AT.Declaration);
+			node.typeinfo = type.typeinfo;
+
+			destroy(type);
+			type = null;
+		}
+
+		auto assign = ParseOptionalAssign();
+		if(assign){
+			if(!node) node = new ASTNode(AT.Assignment);
+			node.right = assign;
+
+		}else if(!node){
+			Error("An identifier at the beginning of a statement must form either a type or an assignment");
+		}
+
+		node.left = id;
+
+		Match(TT.SemiColon);
+		return node;
 	}
 
 	ASTNode* ParseOptionalType(){
 		auto __sd = ScopeDebug("ParseOptionalType");
+
+		if(Check(TT.Type)){
+			return ParseType();
+		}
 
 		return null;
 	}
 
 	ASTNode* ParseOptionalAssign(){
 		auto __sd = ScopeDebug("ParseOptionalAssign");
+		
+		if(Check(TT.Assign)){
+			return ParseAssignmentStub();
+		}
 
 		return null;
 	}
@@ -127,13 +176,19 @@ private:
 	ASTNode* ParseAssignmentStub(){
 		auto __sd = ScopeDebug("ParseAssignmentStub");
 
-		return null;
+		Match(TT.Assign);
+		return ParseExpression();
 	}
 
 	ASTNode* ParseBlock(){
 		auto __sd = ScopeDebug("ParseBlock");
+		ASTNode* node;
 
-		return null;
+		Match(TT.LeftBrace);
+		node = ParseStatementList();
+		Match(TT.RightBrace);
+
+		return node;
 	}
 
 	// Function calls ////////////////////////////////////
@@ -200,12 +255,12 @@ private:
 		auto __sd = ScopeDebug("ParseExpression");
 		auto node = ParseBinOpAddPrecedence();
 
-		node = ParseExpressionR(node);
+		node = ParseTuple(node);
 
 		return node;
 	}
 
-	ASTNode* ParseExpressionR(ASTNode* node){
+	ASTNode* ParseTuple(ASTNode* node){
 		auto __sd = ScopeDebug("ParseExpressionR");
 
 		if(Check(TT.Comma)){
@@ -216,7 +271,7 @@ private:
 			node.left = left;
 			node.right = ParseBinOpAddPrecedence();
 
-			node = ParseExpressionR(node);
+			node = ParseTuple(node);
 		}
 
 		return node;
@@ -336,6 +391,13 @@ private:
 		}else if(Check(TT.Identifier)){
 			node = ParseIdentifier();
 
+			if(Check(TT.Assign)){
+				auto left = node;
+				node = new ASTNode(AT.Assignment);
+				node.left = left;
+				node.right = ParseAssignmentStub();
+			}
+
 		}else if(Check(TT.String)){
 			node = ParseString();
 		}
@@ -347,20 +409,45 @@ private:
 
 	ASTNode* ParseType(){
 		auto __sd = ScopeDebug("ParseType");
+		auto base = ParseBaseType();
 
-		return null;
+		base = ParseTypeModifiers(base);
+
+		return base;
 	}
 
-	ASTNode* ParseTypeModifiers(){
+	ASTNode* ParseTypeModifiers(ASTNode* base){
 		auto __sd = ScopeDebug("ParseTypeModifiers");
 
-		return null;
+		if(Check(TT.Pointer)){
+			Match(TT.Pointer);
+			base.typeinfo.pointerLevel++;
+
+			base = ParseTypeModifiers(base);
+		}else if(Check(TT.LeftSquare)){
+			Match(TT.LeftSquare);
+
+			if(!Check(TT.RightSquare)){
+				auto subscript = ParseExpression();
+				destroy(subscript);
+				// TODO: something here /////////////////////////
+			}
+
+			Match(TT.RightSquare);
+		}
+
+		return base;
 	}
 	
 	ASTNode* ParseBaseType(){
 		auto __sd = ScopeDebug("ParseBaseType");
+		auto tok = Match(TT.Type);
+		auto node = new ASTNode(AT.Type);
+		node.typeinfo = new lt.ast.TypeInfo;
 
-		return null;
+		// TODO: actually do type stuff /////////////////////////
+
+		return node;
 	}
 
 	// Terminals /////////////////////////////////////////

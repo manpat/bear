@@ -58,6 +58,9 @@ struct ASTNode {
 			s ~= " " ~ left.toString;
 		}
 		if(right){
+			if(type == Type.StatementList){
+				s ~= "\n";
+			}
 			s ~= " " ~ right.toString;
 		}
 		s ~= ")";

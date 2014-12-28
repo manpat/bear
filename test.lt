@@ -1,18 +1,18 @@
 // Comments
-/*
-	anInt int;
-	aPointer int^ = @anInt;
-	anotherInt int = ^aPointer
 
-*/
+anInt int;
+aPointer int^ = @anInt;
+anotherInt int = ^aPointer;
 
-^1 + -^thing * -3 * !(4 + @5), 555 + 666, 777
+aShort short = 1;
+anExpression long = aShort = 2, 1 + -aShort * 3 * (4 + 5);
 
-// thing int32 = (111 * 222 + 333);
-// thing = "i am a string";
-// thing2 string = ^@thing;
+{
+	aString string;
+	aString = "I am a string";
 
-//thing1 = (thing2 = thing3);
+	aCharPointerArray uchar^[] = "things";
+}
 
 //func thing(arg1 int32^, arg2 uint8[4]) -> uint8[]{
 //	arg2[0] = @arg1;

@@ -58,9 +58,9 @@ Return -> 'return' Expr ';'
 
 ///////// EXPRESSIONS /////////
 
-Expr -> BinaryOpAddPrec ExprR
-ExprR -> ',' BinaryOpAddPrec ExprR
-ExprR -> ə
+Expr -> BinaryOpAddPrec Tuple
+Tuple -> ',' BinaryOpAddPrec Tuple
+Tuple -> ə
 
 BinaryOpAddPrec -> BinaryOpMulPrec BinaryOpAddPrecR 
 
@@ -94,7 +94,19 @@ Type -> TypeModifiers
 TypeModifiers -> BaseType TypeModifiersR
 TypeModifiersR -> '^' TypeModifiersR
 TypeModifiersR -> '[' Expr ']' TypeModifiersR
+TypeModifiersR -> '[]' TypeModifiersR
 TypeModifiersR -> ə
 
 BaseType -> identifier
 BaseType -> type
+
+type -> void
+type -> u?short
+type -> u?int
+type -> u?long
+
+type -> u?char
+type -> string
+
+type -> float
+type -> double
