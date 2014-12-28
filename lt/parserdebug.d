@@ -15,6 +15,8 @@ struct ScopeDebug {
 		writeln(name ~ " {");
 
 		tablvl++;
+
+		if(tablvl > 100) throw new Exception("I think there's been an infinite loop");
 	}
 	~this(){
 		tablvl--;
@@ -30,8 +32,4 @@ struct ScopeDebug {
 		}
 		writeln(thing);
 	}
-}
-
-mixin template FunctionStart(string name) {
-	auto __sd = ScopeDebug(name);
 }

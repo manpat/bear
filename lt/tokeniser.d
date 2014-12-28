@@ -25,7 +25,7 @@ struct Token {
 		Type,
 
 		Pointer,
-		Deref,
+		At,
 		Returns,
 		Function,
 		Delimit,
@@ -53,7 +53,7 @@ class Tokeniser {
 			(?P<Comment>(?://[^\n]*|
 				/\*.*\*/))					|
 			(?P<SemiColon>(?:;)+)			|
-			(?P<String>".*?")				|
+			(?P<String>".*?(?<!\\)")		|
 
 			(?P<LeftParen>\()				|
 			(?P<RightParen>\))				|
@@ -67,7 +67,7 @@ class Tokeniser {
 			(?P<Function>func)				|
 			(?P<Returns>->)					|
 			(?P<Pointer>\^)					|
-			(?P<Deref>@)					|
+			(?P<At>@)						|
 			(?P<Assign>=)					|
 
 			(?P<Plus>\+)					|
@@ -193,8 +193,8 @@ private:
 				tok.type = Token.Type.Returns;
 			}else if(m["Pointer"].length != 0){
 				tok.type = Token.Type.Pointer;
-			}else if(m["Deref"].length != 0){
-				tok.type = Token.Type.Deref;
+			}else if(m["At"].length != 0){
+				tok.type = Token.Type.At;
 
 			}else if(m["Assign"].length != 0){
 				tok.type = Token.Type.Assign;

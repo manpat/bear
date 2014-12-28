@@ -11,6 +11,7 @@ endif
 
 $(OUTPUTNAME).build: *.d */*.d
 	$(COMPILER) $(FLAGS) $^ -of$(OUTPUTNAME).build
+	rm $(OUTPUTNAME).o
 
 ifeq ($(MODE),debug)
 run:
@@ -18,6 +19,6 @@ run:
 
 else
 run:
-	bash -c "ulimit -d 8192 -t 2 && ./$(OUTPUTNAME).build"
+	bash -c "ulimit -d 1024 -t 1 && ./$(OUTPUTNAME).build"
 
 endif

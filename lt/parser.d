@@ -15,7 +15,6 @@ class Parser {
 	ASTNode* Parse(Token[] _tokens){
 		tokens = _tokens;
 
-		ReadNext();
 		return ParseProgram();
 	}
 
@@ -57,26 +56,50 @@ private:
 
 		return null;
 	}
+
+	bool Check(TT type){
+		if(!next){
+			return type == TT.EOF; 
+		}
+
+		return next.type == type;
+	}
+
 	//////////////////////////////////////////////////////
 
 	// Start /////////////////////////////////////////////
 
 	ASTNode* ParseProgram(){
-		mixin FunctionStart!"ParseProgram";
+		auto __sd = ScopeDebug("ParseProgram");
+		ReadNext();
 
-		return null;
+		ASTNode* node = null;
+
+		if(!Check(TT.EOF)){
+			node = ParseExpression();
+		}
+
+		Match(TT.EOF);
+
+		return node;
 	}
 
 	// Statements ////////////////////////////////////////
 
 	ASTNode* ParseStatementList(){
-		mixin FunctionStart!"ParseStatementList";
+		auto __sd = ScopeDebug("ParseStatementList");
 
-		return null;
+		if(Check(TT.EOF)) return null;
+
+		auto node = new ASTNode(AT.StatementList);
+		node.left = ParseStatement();
+		node.right = ParseStatementList();
+
+		return node;
 	}
 
 	ASTNode* ParseStatement(){
-		mixin FunctionStart!"ParseStatement";
+		auto __sd = ScopeDebug("ParseStatement");
 
 		return null;
 	}
@@ -84,31 +107,31 @@ private:
 	// Declarations and Assignments //////////////////////
 
 	ASTNode* ParseDeclOrAssign(){
-		mixin FunctionStart!"ParseDeclOrAssign";
+		auto __sd = ScopeDebug("ParseDeclOrAssign");
 
 		return null;
 	}
 
 	ASTNode* ParseOptionalType(){
-		mixin FunctionStart!"ParseOptionalType";
+		auto __sd = ScopeDebug("ParseOptionalType");
 
 		return null;
 	}
 
 	ASTNode* ParseOptionalAssign(){
-		mixin FunctionStart!"ParseOptionalAssign";
+		auto __sd = ScopeDebug("ParseOptionalAssign");
 
 		return null;
 	}
 
 	ASTNode* ParseAssignmentStub(){
-		mixin FunctionStart!"ParseAssignmentStub";
+		auto __sd = ScopeDebug("ParseAssignmentStub");
 
 		return null;
 	}
 
 	ASTNode* ParseBlock(){
-		mixin FunctionStart!"ParseBlock";
+		auto __sd = ScopeDebug("ParseBlock");
 
 		return null;
 	}
@@ -116,13 +139,13 @@ private:
 	// Function calls ////////////////////////////////////
 
 	ASTNode* ParseFuncCall(){
-		mixin FunctionStart!"ParseFuncCall";
+		auto __sd = ScopeDebug("ParseFuncCall");
 
 		return null;
 	}
 
 	ASTNode* ParseArgumentList(){
-		mixin FunctionStart!"ParseArgumentList";
+		auto __sd = ScopeDebug("ParseArgumentList");
 
 		return null;
 	}
@@ -130,43 +153,43 @@ private:
 	// Function Declarations and Definitions /////////////
 
 	ASTNode* ParseFuncDeclOrDef(){
-		mixin FunctionStart!"ParseFuncDeclOrDef";
+		auto __sd = ScopeDebug("ParseFuncDeclOrDef");
 
 		return null;
 	}
 
 	ASTNode* ParseFuncDecl(){
-		mixin FunctionStart!"ParseFuncDecl";
+		auto __sd = ScopeDebug("ParseFuncDecl");
 
 		return null;
 	}
 
 	ASTNode* ParseFuncDeclParam(){
-		mixin FunctionStart!"ParseFuncDeclParam";
+		auto __sd = ScopeDebug("ParseFuncDeclParam");
 
 		return null;
 	}
 
 	ASTNode* ParseFuncDeclType(){
-		mixin FunctionStart!"ParseFuncDeclType";
+		auto __sd = ScopeDebug("ParseFuncDeclType");
 
 		return null;
 	}
 
 	ASTNode* ParseParameterList(){
-		mixin FunctionStart!"ParseParameterList";
+		auto __sd = ScopeDebug("ParseParameterList");
 
 		return null;
 	}
 
 	ASTNode* ParseParameter(){
-		mixin FunctionStart!"ParseParameter";
+		auto __sd = ScopeDebug("ParseParameter");
 
 		return null;
 	}
 
 	ASTNode* ParseReturn(){
-		mixin FunctionStart!"ParseReturn";
+		auto __sd = ScopeDebug("ParseReturn");
 
 		return null;
 	}
@@ -174,69 +197,153 @@ private:
 	// Expressions ///////////////////////////////////////
 
 	ASTNode* ParseExpression(){
-		mixin FunctionStart!"ParseExpression";
+		auto __sd = ScopeDebug("ParseExpression");
+		auto left = ParseBinOpAddPrecedence();
+		// ParseExpressionR
 
-		return null;
+		return left;
 	}
 
 	ASTNode* ParseExpressionR(){
-		mixin FunctionStart!"ParseExpressionR";
+		auto __sd = ScopeDebug("ParseExpressionR");
 
 		return null;
 	}
 
 	ASTNode* ParseBinOpAddPrecedence(){
-		mixin FunctionStart!"ParseBinOpAddPrecedence";
+		auto __sd = ScopeDebug("ParseBinOpAddPrecedence");
+		auto node = ParseBinOpMulPrecedence();
 
-		return null;
+		node = ParseBinOpAddPrecedenceR(node);
+
+		return node;
 	}
 
-	ASTNode* ParseBinOpAddPrecedenceR(){
-		mixin FunctionStart!"ParseBinOpAddPrecedenceR";
+	ASTNode* ParseBinOpAddPrecedenceR(ASTNode* node){
+		auto __sd = ScopeDebug("ParseBinOpAddPrecedenceR");
 
-		return null;
+		if(Check(TT.Plus)){
+			auto tok = Match(TT.Plus);
+			auto op = new ASTNode(AT.Plus);
+			op.left = node;
+			node = op;
+			node.right = ParseBinOpMulPrecedence();
+
+			node = ParseBinOpAddPrecedenceR(node);
+
+		}else if(Check(TT.Minus)){
+			auto tok = Match(TT.Minus);
+			auto op = new ASTNode(AT.Minus);
+			op.left = node;
+			node = op;
+			node.right = ParseBinOpMulPrecedence();
+
+			node = ParseBinOpAddPrecedenceR(node);
+		}
+
+		return node;
 	}
 
 	ASTNode* ParseBinOpMulPrecedence(){
-		mixin FunctionStart!"ParseBinOpMulPrecedence";
+		auto __sd = ScopeDebug("ParseBinOpMulPrecedence");
+		auto node = ParseUnaryOp();
 
-		return null;
+		node = ParseBinOpMulPrecedenceR(node);
+
+		return node;
 	}
 
-	ASTNode* ParseBinOpMulPrecedenceR(){
-		mixin FunctionStart!"ParseBinOpMulPrecedenceR";
+	ASTNode* ParseBinOpMulPrecedenceR(ASTNode* node){
+		auto __sd = ScopeDebug("ParseBinOpMulPrecedenceR");
 
-		return null;
+		if(Check(TT.Star)){
+			auto tok = Match(TT.Star);
+			auto op = new ASTNode(AT.Times);
+			op.left = node;
+			node = op;
+			node.right = ParseUnaryOp();
+
+			node = ParseBinOpMulPrecedenceR(node);
+
+		}else if(Check(TT.Divide)){
+			auto tok = Match(TT.Divide);
+			auto op = new ASTNode(AT.Divide);
+			op.left = node;
+			node = op;
+			node.right = ParseUnaryOp();
+
+			node = ParseBinOpMulPrecedenceR(node);
+		}
+
+		return node;
 	}
 
 	ASTNode* ParseUnaryOp(){
-		mixin FunctionStart!"ParseUnaryOp";
+		auto __sd = ScopeDebug("ParseUnaryOp");
 
-		return null;
+		if(Check(TT.Minus)){
+			auto tok = Match(TT.Minus);
+			auto op = new ASTNode(AT.Negate);
+			op.left = ParseUnaryOp();
+			return op;
+
+		}else if(Check(TT.At)){
+			auto tok = Match(TT.At);
+			auto op = new ASTNode(AT.AddressOf);
+			op.left = ParseUnaryOp();
+			return op;
+			
+		}else if(Check(TT.Pointer)){
+			auto tok = Match(TT.Pointer);
+			auto op = new ASTNode(AT.Deref);
+			op.left = ParseUnaryOp();
+			return op;
+			
+		}else if(Check(TT.Not)){
+			auto tok = Match(TT.Not);
+			auto op = new ASTNode(AT.Not);
+			op.left = ParseUnaryOp();
+			return op;
+		}
+
+		return ParseExpressionTerm();
 	}
 
 	ASTNode* ParseExpressionTerm(){
-		mixin FunctionStart!"ParseExpressionTerm";
+		auto __sd = ScopeDebug("ParseExpressionTerm");
+		ASTNode* node = null;
 
-		return null;
+		if(Check(TT.LeftParen)){
+			Match(TT.LeftParen);
+			node = ParseExpression();
+			Match(TT.RightParen);
+		}else if(Check(TT.Number)){
+			node = ParseNumber();
+		}else if(Check(TT.Identifier)){
+			node = ParseIdentifier();
+		}else if(Check(TT.String)){
+			node = ParseString();
+		}
+
+		return node;
 	}
 
 	// Types /////////////////////////////////////////////
 
 	ASTNode* ParseType(){
-		mixin FunctionStart!"ParseType";
+		auto __sd = ScopeDebug("ParseType");
 
 		return null;
 	}
 
 	ASTNode* ParseTypeModifiers(){
-		mixin FunctionStart!"ParseTypeModifiers";
+		auto __sd = ScopeDebug("ParseTypeModifiers");
 
 		return null;
 	}
 	
 	ASTNode* ParseBaseType(){
-		mixin FunctionStart!"ParseBaseType";
+		auto __sd = ScopeDebug("ParseBaseType");
 
 		return null;
 	}
@@ -244,14 +351,31 @@ private:
 	// Terminals /////////////////////////////////////////
 
 	ASTNode* ParseIdentifier(){
-		mixin FunctionStart!"ParseIdentifier";
+		auto __sd = ScopeDebug("ParseIdentifier");
+		auto tok = Match(TT.Identifier);
+		auto node = new ASTNode(AT.Identifier);
+		node.name = tok.text;
 
-		return null;
+		return node;
 	}
 	
 	ASTNode* ParseNumber(){
-		mixin FunctionStart!"ParseNumber";
+		auto __sd = ScopeDebug("ParseNumber");
+		auto tok = Match(TT.Number);
+		auto node = new ASTNode(AT.Number);
+		node.literalinfo = new LiteralInfo;
+		node.literalinfo.text = tok.text;
 
-		return null;
+		return node;
+	}
+	
+	ASTNode* ParseString(){
+		auto __sd = ScopeDebug("ParseString");
+		auto tok = Match(TT.String);
+		auto node = new ASTNode(AT.String);
+		node.literalinfo = new LiteralInfo;
+		node.literalinfo.text = tok.text[1..$-1];
+
+		return node;
 	}
 }

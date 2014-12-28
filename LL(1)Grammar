@@ -75,8 +75,8 @@ BinaryOpMulPrecR -> '/' UnaryOp BinaryOpMulPrecR
 BinaryOpMulPrecR -> ə
 
 UnaryOp -> '-' UnaryOp
-UnaryOp -> '@' UnaryOp // Deref
-UnaryOp -> '^' UnaryOp // Address of
+UnaryOp -> '@' UnaryOp // Address of
+UnaryOp -> '^' UnaryOp // Deref
 UnaryOp -> '!' UnaryOp
 UnaryOp -> ExprTerm
 
@@ -85,6 +85,7 @@ ExprTerm -> FuncCall
 ExprTerm -> identifier
 ExprTerm -> identifier AssignmentStub
 ExprTerm -> number
+ExprTerm -> '"' string '"'
 
 ///////// Type /////////
 

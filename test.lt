@@ -1,17 +1,16 @@
 // Comments
 /*
-func thing() { // More comments
-	things.things();
-}
+	anInt int;
+	aPointer int^ = @anInt;
+	anotherInt int = ^aPointer
 
-func anotherthing(arg ArgType[], anotherarg TypeOfSomeDescription) -> ReturnType {
-	return arg; // More comments
-}*/
+*/
 
+^1 + -^thing * -3 * !(4 + @5)
 
-thing int32 = (111 * 222 + 333);
-thing = "i am a string";
-thing2 string = @^thing;
+// thing int32 = (111 * 222 + 333);
+// thing = "i am a string";
+// thing2 string = ^@thing;
 
 //thing1 = (thing2 = thing3);
 

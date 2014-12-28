@@ -23,6 +23,7 @@ void main(){
 		writeln(ast.toString);
 
 	}catch(std.exception.Exception e){
-		writeln(e);
+		writeln("\n");
+		writeln("error: ", e);
 	}
 }

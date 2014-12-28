@@ -2,6 +2,70 @@ module lt.ast;
 
 import std.stdio, std.conv;
 
+struct ASTNode {
+	enum Type {
+		Invalid,
+		Root,
+
+		Statement,
+		StatementList,
+		Expression,
+		Assignment,
+		Declaration,
+
+		FunctionDeclaration,
+		FunctionDefinition,
+		FunctionCall,
+
+		Block,
+
+		Plus, Minus,
+		Times, Divide,
+
+		Negate,	Deref, 
+		AddressOf, Not,
+
+		Identifier,
+		Type,
+		Number,
+		String,
+	}
+
+	Type type;
+	ASTNode* left = null;
+	ASTNode* right = null;
+
+	char[] name = null;
+	TypeInfo* typeinfo = null;
+	LiteralInfo* literalinfo = null;
+
+	this(Type _type){
+		type = _type;
+	}
+
+	string toString(){
+		if((type == Type.Number || type == Type.String) 
+			&& literalinfo){
+			
+			return to!string(literalinfo.text);
+		}else if(type == Type.Identifier && name){
+			return to!string(name);
+		}
+
+		string s = "(" ~ to!string(type);
+
+		if(left){
+			s ~= " " ~ left.toString;
+		}
+		if(right){
+			s ~= " " ~ right.toString;
+		}
+		s ~= ")";
+
+		return s;
+	}
+}
+
 struct TypeInfo {
 	enum Primitive {
 		Void,
@@ -17,68 +81,6 @@ struct TypeInfo {
 	bool unsigned;
 }
 
-struct ASTNode {
-	enum Type {
-		Invalid,
-		Root,
-
-		Statement,
-		Expression,
-		Assignment,
-		Declaration,
-
-		FunctionDeclaration,
-		FunctionDefinition,
-		FunctionCall,
-
-		Block,
-
-		Plus, Minus,
-		Times, Divide,
-
-		Deref, AddressOf,
-
-		Identifier,
-		Type,
-		LiteralNumber,
-		LiteralString,
-	}
-
-	this(Type _type){
-		type = _type;
-	}
-
-	Type type;
-	char[] name = null;
-	ASTNode* left = null;
-	ASTNode* right = null;
-
-	TypeInfo* typeinfo = null;
-	ASTNode*[] statements;
-
-	string toString(){
-		string s = "(" ~ to!string(type);
-
-		if(name){
-			s ~= " \"" ~ name ~ "\"";
-		}
-
-		if(statements.length != 0){
-			s ~= " [";
-			foreach(st; statements){
-				s ~= "\n" ~ st.toString;
-			}
-			s ~= "\n]";
-		}
-
-		if(left){
-			s ~= " " ~ left.toString;
-		}
-		if(right){
-			s ~= " " ~ right.toString;
-		}
-		s ~= ")";
-
-		return s;
-	}
+struct LiteralInfo {
+	char[] text;
 }
