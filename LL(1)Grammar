@@ -59,7 +59,7 @@ Return -> 'return' Expr ';'
 ///////// EXPRESSIONS /////////
 
 Expr -> BinaryOpAddPrec ExprR
-ExprR -> ',' BinaryOpAddPrec
+ExprR -> ',' BinaryOpAddPrec ExprR
 ExprR -> ə
 
 BinaryOpAddPrec -> BinaryOpMulPrec BinaryOpAddPrecR 

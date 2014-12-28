@@ -28,7 +28,7 @@ struct Token {
 		At,
 		Returns,
 		Function,
-		Delimit,
+		Comma,
 
 		Plus, Minus,
 		Star, Divide,
@@ -81,7 +81,7 @@ class Tokeniser {
 				float(?:32|64)|u?char|
 				string)						|
 
-			(?P<Delimit>,)					|
+			(?P<Comma>,)					|
 
 			(?P<Identifier>[a-zA-Z_]\w*)	|
 			(?P<Number>[0-9][0-9_]*)
@@ -210,8 +210,8 @@ private:
 			}else if(m["Divide"].length != 0){
 				tok.type = Token.Type.Divide;
 
-			}else if(m["Delimit"].length != 0){
-				tok.type = Token.Type.Delimit;
+			}else if(m["Comma"].length != 0){
+				tok.type = Token.Type.Comma;
 
 			}
 

@@ -198,16 +198,28 @@ private:
 
 	ASTNode* ParseExpression(){
 		auto __sd = ScopeDebug("ParseExpression");
-		auto left = ParseBinOpAddPrecedence();
-		// ParseExpressionR
+		auto node = ParseBinOpAddPrecedence();
 
-		return left;
+		node = ParseExpressionR(node);
+
+		return node;
 	}
 
-	ASTNode* ParseExpressionR(){
+	ASTNode* ParseExpressionR(ASTNode* node){
 		auto __sd = ScopeDebug("ParseExpressionR");
 
-		return null;
+		if(Check(TT.Comma)){
+			Match(TT.Comma);
+
+			auto left = node;
+			node = new ASTNode(AT.Expression);
+			node.left = left;
+			node.right = ParseBinOpAddPrecedence();
+
+			node = ParseExpressionR(node);
+		}
+
+		return node;
 	}
 
 	ASTNode* ParseBinOpAddPrecedence(){
@@ -317,10 +329,13 @@ private:
 			Match(TT.LeftParen);
 			node = ParseExpression();
 			Match(TT.RightParen);
+
 		}else if(Check(TT.Number)){
 			node = ParseNumber();
+
 		}else if(Check(TT.Identifier)){
 			node = ParseIdentifier();
+
 		}else if(Check(TT.String)){
 			node = ParseString();
 		}
