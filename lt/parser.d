@@ -212,7 +212,7 @@ private:
 			Match(TT.Comma);
 
 			auto left = node;
-			node = new ASTNode(AT.Expression);
+			node = new ASTNode(AT.Tuple);
 			node.left = left;
 			node.right = ParseBinOpAddPrecedence();
 

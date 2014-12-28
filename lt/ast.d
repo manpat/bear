@@ -9,7 +9,6 @@ struct ASTNode {
 
 		Statement,
 		StatementList,
-		Expression,
 		Assignment,
 		Declaration,
 
@@ -17,6 +16,7 @@ struct ASTNode {
 		FunctionDefinition,
 		FunctionCall,
 
+		Tuple,
 		Block,
 
 		Plus, Minus,
@@ -46,7 +46,7 @@ struct ASTNode {
 	string toString(){
 		if((type == Type.Number || type == Type.String) 
 			&& literalinfo){
-			
+
 			return to!string(literalinfo.text);
 		}else if(type == Type.Identifier && name){
 			return to!string(name);
