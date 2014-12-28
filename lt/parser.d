@@ -3,134 +3,23 @@ module lt.parser;
 import std.stdio;
 import std.conv;
 import lt.tokeniser : Token;
-
-//	expression ::= equality-expression
-//	equality-expression ::= additive-expression ( ( '==' | '!=' ) additive-expression ) *
-//	additive-expression ::= multiplicative-expression ( ( '+' | '-' ) multiplicative-expression ) *
-//	multiplicative-expression ::= primary ( ( '*' | '/' ) primary ) *
-//	primary ::= '(' expression ')' | NUMBER | VARIABLE | '-' primary
-
-//	parse_expression_1 (lhs, min_precedence = 0)
-//		lookahead := peek next token
-//		while lookahead is a binary operator whose precedence is >= min_precedence
-//			op := lookahead
-//			advance to next token
-//			rhs := parse_primary ()
-//			lookahead := peek next token
-//			while lookahead is a binary operator whose precedence is greater
-//					 than op's, or a right-associative operator
-//					 whose precedence is equal to op's
-//				rhs := parse_expression_1 (rhs, lookahead's precedence)
-//				lookahead := peek next token
-//			lhs := the result of applying op with operands lhs and rhs
-//		return lhs
-
-struct TypeInfo {
-	enum Primitive {
-		Void,
-		Integer,
-		Float,
-		Character,
-		Function,
-	}
-
-	Primitive primitive;
-	uint width;
-	uint pointerLevel;
-	bool unsigned;
-}
-
-struct ASTNode {
-	enum Type {
-		Invalid,
-		Root,
-
-		Statement,
-		Expression,
-		Assignment,
-		Declaration,
-
-		FunctionDeclaration,
-		FunctionDefinition,
-		FunctionCall,
-
-		Block,
-
-		Plus, Minus,
-		Times, Divide,
-
-		Deref, AddressOf,
-
-		Identifier,
-		Type,
-		LiteralNumber,
-		LiteralString,
-	}
-
-	this(Type _type){
-		type = _type;
-	}
-
-	Type type;
-	char[] name = null;
-	ASTNode* left = null;
-	ASTNode* right = null;
-
-	TypeInfo* typeinfo = null;
-	ASTNode*[] statements;
-
-	string toString(){
-		string s = "(" ~ to!string(type);
-
-		if(name){
-			s ~= " \"" ~ name ~ "\"";
-		}
-
-		if(statements.length != 0){
-			s ~= " [";
-			foreach(st; statements){
-				s ~= "\n" ~ st.toString;
-			}
-			s ~= "\n]";
-		}
-
-		if(left){
-			s ~= " " ~ left.toString;
-		}
-		if(right){
-			s ~= " " ~ right.toString;
-		}
-		s ~= ")";
-
-		return s;
-	}
-}
+import lt.ast;
+import lt.parserdebug;
 
 class Parser {
 	private alias TT = Token.Type;
 	private alias AT = ASTNode.Type;
 	private Token[] tokens;
-	private ulong pos;
-	private ulong prevpos = 0;
-	private ulong recursionCount = 0;
-
-	private Token* current;
-	private Token* lookahead;
+	private Token* next;
 
 	ASTNode* Parse(Token[] _tokens){
 		tokens = _tokens;
-		pos = 0;
 
-		current = null;
-		lookahead = &tokens[0];
+		ReadNext();
 		return ParseProgram();
 	}
 
 private:
-	ASTNode* InvalidToken(){
-		return new ASTNode(AT.Invalid);
-	}
-
 	void Error(string e){
 		writeln("error: ", e);
 	}
@@ -139,208 +28,230 @@ private:
 		throw new Exception("internal error: ", e);
 	}
 
-	bool Check(Token.Type type){
-		if(!lookahead) InternalError("Lookahead null");
+	void ReadNext(){
+		static ulong pos = 0;
 
-		if(lookahead.type != type){
-			return false;
+		if(pos >= tokens.length) {
+			next = null;
+		}else{
+			next = &tokens[pos++];
+		}
+	}
+
+	Token* Match(TT type){
+		if(!next){
+			if(type != TT.EOF){
+				throw new Exception("Unexpected EOF");
+			}
+		}else{
+			if(next.type != type){
+				throw new Exception("Expected " ~ to!string(type) ~ ", got " ~ to!string(next.type));
+			}else{
+				auto c = next;
+				ReadNext();
+				ScopeDebug.Write("matched " ~ to!string(c.type));
+
+				return c;
+			}
 		}
 
-		return true;
+		return null;
 	}
+	//////////////////////////////////////////////////////
 
-	bool Accept(Token.Type type){
-		if(!Check(type)) return false;
-		Advance();
-
-		return true;
-	}
-
-	bool Expect(Token.Type type){
-		if(!Accept(type)){
-			Error("Expected " ~ to!string(type) 
-				~ ", got " ~ to!string(lookahead.type));
-
-			return false;
-		}
-
-		return true;
-	}
-
-	Token* Advance(){
-		current = lookahead;
-		return lookahead = &tokens[++pos];
-	}
+	// Start /////////////////////////////////////////////
 
 	ASTNode* ParseProgram(){
-		auto node = new ASTNode();
-		node.type = AT.Root;
+		mixin FunctionStart!"ParseProgram";
 
-		while(lookahead.type != TT.EOF){
-			node.statements ~= ParseStatement();
-			if(!Expect(TT.SemiColon)) break;
-		}
+		return null;
+	}
 
-		return node;
+	// Statements ////////////////////////////////////////
+
+	ASTNode* ParseStatementList(){
+		mixin FunctionStart!"ParseStatementList";
+
+		return null;
 	}
 
 	ASTNode* ParseStatement(){
-		ASTNode* node = null;
+		mixin FunctionStart!"ParseStatement";
 
-		if(Accept(TT.Identifier)){
-			if(Check(TT.Type)){
-				auto decl = new ASTNode(AT.Declaration);
-				decl.left = IdentifierNode(current.text);
-				decl.right = ParseType();
-
-				if(Accept(TT.Assign)){
-					auto ass = new ASTNode(AT.Assignment);
-					ass.left = decl;
-					ass.right = ParseExpression();
-					node = ass;
-				}else{
-					node = decl;
-				}
-			}else{
-				auto ass = new ASTNode(AT.Assignment);
-				ass.left = IdentifierNode(current.text);
-
-				if(!Expect(TT.Assign)){
-					return InvalidToken();
-				}
-				ass.right = ParseExpression();
-
-				node = ass;
-			}
-
-		}else{
-			node = InvalidToken();
-		}
-
-		return node;
+		return null;
 	}
+
+	// Declarations and Assignments //////////////////////
+
+	ASTNode* ParseDeclOrAssign(){
+		mixin FunctionStart!"ParseDeclOrAssign";
+
+		return null;
+	}
+
+	ASTNode* ParseOptionalType(){
+		mixin FunctionStart!"ParseOptionalType";
+
+		return null;
+	}
+
+	ASTNode* ParseOptionalAssign(){
+		mixin FunctionStart!"ParseOptionalAssign";
+
+		return null;
+	}
+
+	ASTNode* ParseAssignmentStub(){
+		mixin FunctionStart!"ParseAssignmentStub";
+
+		return null;
+	}
+
+	ASTNode* ParseBlock(){
+		mixin FunctionStart!"ParseBlock";
+
+		return null;
+	}
+
+	// Function calls ////////////////////////////////////
+
+	ASTNode* ParseFuncCall(){
+		mixin FunctionStart!"ParseFuncCall";
+
+		return null;
+	}
+
+	ASTNode* ParseArgumentList(){
+		mixin FunctionStart!"ParseArgumentList";
+
+		return null;
+	}
+
+	// Function Declarations and Definitions /////////////
+
+	ASTNode* ParseFuncDeclOrDef(){
+		mixin FunctionStart!"ParseFuncDeclOrDef";
+
+		return null;
+	}
+
+	ASTNode* ParseFuncDecl(){
+		mixin FunctionStart!"ParseFuncDecl";
+
+		return null;
+	}
+
+	ASTNode* ParseFuncDeclParam(){
+		mixin FunctionStart!"ParseFuncDeclParam";
+
+		return null;
+	}
+
+	ASTNode* ParseFuncDeclType(){
+		mixin FunctionStart!"ParseFuncDeclType";
+
+		return null;
+	}
+
+	ASTNode* ParseParameterList(){
+		mixin FunctionStart!"ParseParameterList";
+
+		return null;
+	}
+
+	ASTNode* ParseParameter(){
+		mixin FunctionStart!"ParseParameter";
+
+		return null;
+	}
+
+	ASTNode* ParseReturn(){
+		mixin FunctionStart!"ParseReturn";
+
+		return null;
+	}
+
+	// Expressions ///////////////////////////////////////
 
 	ASTNode* ParseExpression(){
-		ASTNode* node;
+		mixin FunctionStart!"ParseExpression";
 
-		if(Accept(TT.Deref)){
-			node = new ASTNode(AT.Deref);
-			node.left = ParseExpression();
-
-		}else if(Accept(TT.Pointer)){
-			node = new ASTNode(AT.AddressOf);
-			node.left = ParseExpression();
-
-		}else if(Accept(TT.LeftParen)){
-			node = ParseExpression();
-			Expect(TT.RightParen);
-
-		}else if(Accept(TT.Identifier)){
-			auto factor = IdentifierNode(current.text);
-			if(CheckBinaryOperator()){
-				node = ParseBinaryOp();
-			}else{
-				node = factor;
-			}
-
-		}else if(Accept(TT.Number)){
-			auto factor = LiteralNumberNode(current.text);
-			if(CheckBinaryOperator()){
-				node = ParseBinaryOp();
-			}else{
-				node = factor;
-			}
-
-		}else if(Accept(TT.String)){
-			auto factor = LiteralStringNode(current.text);
-
-			node = factor;
-		}
-
-		return node;
+		return null;
 	}
+
+	ASTNode* ParseExpressionR(){
+		mixin FunctionStart!"ParseExpressionR";
+
+		return null;
+	}
+
+	ASTNode* ParseBinOpAddPrecedence(){
+		mixin FunctionStart!"ParseBinOpAddPrecedence";
+
+		return null;
+	}
+
+	ASTNode* ParseBinOpAddPrecedenceR(){
+		mixin FunctionStart!"ParseBinOpAddPrecedenceR";
+
+		return null;
+	}
+
+	ASTNode* ParseBinOpMulPrecedence(){
+		mixin FunctionStart!"ParseBinOpMulPrecedence";
+
+		return null;
+	}
+
+	ASTNode* ParseBinOpMulPrecedenceR(){
+		mixin FunctionStart!"ParseBinOpMulPrecedenceR";
+
+		return null;
+	}
+
+	ASTNode* ParseUnaryOp(){
+		mixin FunctionStart!"ParseUnaryOp";
+
+		return null;
+	}
+
+	ASTNode* ParseExpressionTerm(){
+		mixin FunctionStart!"ParseExpressionTerm";
+
+		return null;
+	}
+
+	// Types /////////////////////////////////////////////
 
 	ASTNode* ParseType(){
-		if(!Expect(TT.Type)) return InvalidToken();
+		mixin FunctionStart!"ParseType";
 
-		auto node = new ASTNode(AT.Type);
-		node.name = current.text;
-
-		// Loop through and get pointer stuff
-
-		return node;
+		return null;
 	}
 
-	ASTNode* ParseBinaryOp(){
-		ASTNode* f1 = null;
-		ASTNode* op = null;
-		ASTNode* f2 = null;
+	ASTNode* ParseTypeModifiers(){
+		mixin FunctionStart!"ParseTypeModifiers";
 
-		switch(current.type){
-			case TT.Identifier:
-				f1 = IdentifierNode(current.text);
-				break;
-			case TT.Number:
-				f1 = LiteralNumberNode(current.text);
-				break;
-			case TT.String:
-				f1 = LiteralStringNode(current.text);
-				break;
+		return null;
+	}
+	
+	ASTNode* ParseBaseType(){
+		mixin FunctionStart!"ParseBaseType";
 
-			default:
-				f1 = InvalidToken();
-				Error("Expected something to do math to");
-		}
-
-		switch(lookahead.type){
-			case TT.Plus:
-				op = new ASTNode(AT.Plus);
-				break;
-
-			case TT.Minus:
-				op = new ASTNode(AT.Minus);
-				break;
-
-			case TT.Star:
-				op = new ASTNode(AT.Times);
-				break;
-
-			case TT.Divide:
-				op = new ASTNode(AT.Divide);
-				break;
-
-			default:
-				op = InvalidToken();
-				Error("Expected a binary operator");
-		}
-		Advance();
-
-		f2 = ParseExpression();
-		op.left = f1;
-		op.right = f2;
-
-		return op;
+		return null;
 	}
 
-	ASTNode* IdentifierNode(char[] name){
-		auto node = new ASTNode(AT.Identifier);
-		node.name = name;
-		return node;
-	}
+	// Terminals /////////////////////////////////////////
 
-	ASTNode* LiteralNumberNode(char[] name){
-		auto node = new ASTNode(AT.LiteralNumber);
-		node.name = name;
-		return node;
-	}
+	ASTNode* ParseIdentifier(){
+		mixin FunctionStart!"ParseIdentifier";
 
-	ASTNode* LiteralStringNode(char[] name){
-		auto node = new ASTNode(AT.LiteralString);
-		node.name = name[1..$-1];
-		return node;
+		return null;
 	}
+	
+	ASTNode* ParseNumber(){
+		mixin FunctionStart!"ParseNumber";
 
-	bool CheckBinaryOperator(){
-		return Check(TT.Plus) || Check(TT.Minus) || Check(TT.Star) || Check(TT.Divide);
+		return null;
 	}
 }

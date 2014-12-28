@@ -18,34 +18,34 @@ Expression:
 	UnaryOp Expression
 	FunctionCall
 	Assignment
-	Identifier
-	LiteralNumber
+	identifier
+	number
 
 Return:
 	'return' Expression
 
 Assignment:
-	Identifier '=' Expression
+	identifier '=' Expression
 
 Declaration:
-	Identifier Type ['=' Expression]
+	identifier Type ['=' Expression]
 	// Type inference
 	// Const qualifiers 
 
 FunctionDeclaration:
-	'func' Identifier ['(' [ArgumentList] ')'] ['->' Type]
+	'func' identifier ['(' [ArgumentList] ')'] ['->' Type]
 
 FunctionDefinition:
 	FunctionDeclaration Block
 	
 FunctionCall:
-	Identifier '(' [ArgumentList] ')'
+	identifier '(' [ArgumentList] ')'
 
 Block:
 	'{' [Statement ';']* '}'
 
 Argument:
-	[Identifier] Type
+	[identifier] Type
 
 ArgumentList:
  	Argument [',' Argument]*
@@ -62,7 +62,7 @@ UnaryOp:
 	'^' // Address of
 	'!'
 
-Identifier:
+identifier:
 	[A-Za-z_][A-Za-z_0-9]* // Include unicode eventually
 
 Type:
@@ -79,8 +79,8 @@ Type:
 
 	'func' ['(' [ArgumentList] ')'] ['->' Type]
 
-	Type '[' [Identifier|LiteralNumber] ']' // Static/Dynamic Array
+	Type '[' [identifier|number] ']' // Static/Dynamic Array
 	Type '^' // Pointer
 
-LiteralNumber:
-	[0-9]*[.[0-9]]
+number:
+	[0-9][0-9_]*['.'[0-9_]*]

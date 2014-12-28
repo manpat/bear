@@ -1,0 +1,99 @@
+///////// Start symbol /////////
+
+Program -> StatementList $
+
+///////// Statement /////////
+
+StatementList -> Statement StatementList
+StatementList -> ə
+
+Statement -> DeclOrAssign 
+Statement -> FuncDeclOrDef 
+Statement -> Return
+Statement -> Block
+
+///////// DeclOrAssign /////////
+
+DeclOrAssign -> identifier OptionalType OptionalAssign ';'
+
+OptionalType -> Type
+OptionalType -> ə
+
+OptionalAssign -> AssignmentStub
+OptionalAssign -> ə
+
+AssignmentStub -> '=' Expr
+
+Block -> '{' StatementList '}'
+
+///////// Func call /////////
+
+FuncCall -> identifier '(' ArgumentList ')'
+
+ArgumentList -> Expr ',' ArgumentList
+ArgumentList -> Expr
+ArgumentList -> ə
+
+///////// Func Declarations and Definitions /////////
+
+FuncDeclOrDef -> 'func' identifier FuncDecl
+FuncDeclOrDef -> 'func' identifier FuncDecl Block
+
+FuncDecl -> FuncDeclParam FuncDeclType
+
+FuncDeclParam -> '(' ParameterList ')'
+FuncDeclParam -> ə
+
+FuncDeclType -> '->' Type
+FuncDeclType -> ə
+
+ParameterList -> Parameter ',' ParameterList
+ParameterList -> Parameter
+ParameterList -> ə
+
+Parameter -> identifier Type
+Parameter -> Type
+
+Return -> 'return' Expr ';'
+
+///////// EXPRESSIONS /////////
+
+Expr -> BinaryOpAddPrec ExprR
+ExprR -> ',' BinaryOpAddPrec
+ExprR -> ə
+
+BinaryOpAddPrec -> BinaryOpMulPrec BinaryOpAddPrecR 
+
+BinaryOpAddPrecR -> '+' BinaryOpMulPrec BinaryOpAddPrecR
+BinaryOpAddPrecR -> '-' BinaryOpMulPrec BinaryOpAddPrecR
+BinaryOpAddPrecR -> ə
+
+BinaryOpMulPrec -> UnaryOp BinaryOpMulPrecR 
+
+BinaryOpMulPrecR -> '*' UnaryOp BinaryOpMulPrecR
+BinaryOpMulPrecR -> '/' UnaryOp BinaryOpMulPrecR
+BinaryOpMulPrecR -> ə
+
+UnaryOp -> '-' UnaryOp
+UnaryOp -> '@' UnaryOp // Deref
+UnaryOp -> '^' UnaryOp // Address of
+UnaryOp -> '!' UnaryOp
+UnaryOp -> ExprTerm
+
+ExprTerm -> '(' Expr ')'
+ExprTerm -> FuncCall
+ExprTerm -> identifier
+ExprTerm -> identifier AssignmentStub
+ExprTerm -> number
+
+///////// Type /////////
+
+Type -> TypeModifiers
+
+TypeModifiers -> BaseType TypeModifiersR
+TypeModifiersR -> '^' TypeModifiersR
+TypeModifiersR -> '[' Expr ']' TypeModifiersR
+TypeModifiersR -> ə
+
+BaseType -> identifier
+BaseType -> type

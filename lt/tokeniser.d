@@ -37,8 +37,8 @@ struct Token {
 		Assign,
 	}
 	
-	char[] text;
 	Type type;
+	char[] text;
 
 	// Debug info
 	// filename, line number, pre analysis line
@@ -119,7 +119,7 @@ class Tokeniser {
 			prevpos = pos;
 		}
 
-		tokens ~= Token(cast(char[])"EOF", Token.Type.EOF);
+		tokens ~= Token(Token.Type.EOF, cast(char[])"EOF");
 
 
 		return tokens;
