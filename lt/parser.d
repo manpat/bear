@@ -1,4 +1,4 @@
-module lt.syntaxanalyser;
+module lt.parser;
 
 import std.stdio;
 import std.conv;
@@ -106,7 +106,7 @@ struct ASTNode {
 	}
 }
 
-class SyntaxAnalyser {
+class Parser {
 	private alias TT = Token.Type;
 	private alias AT = ASTNode.Type;
 	private Token[] tokens;
