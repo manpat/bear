@@ -1,18 +1,23 @@
 // Comments
 
-anInt int;
-aPointer int^ = @anInt;
-anotherInt int = ^aPointer;
+// anInt int;
+// aPointer int^ = @anInt;
+// anotherInt int = ^aPointer;
 
-aShort short = 1;
-anExpression long = aShort = 2, 1 + -aShort * 3 * (4 + 5);
+// aShort short = 1;
+// anExpression long = (aShort = 2), 1 + -aShort * 3 * (4 + 5);
 
-{
-	aString string;
-	aString = "I am a string";
+// {
+// 	aString string;
+// 	aString = "I am a string";
+// 	{
+// 		aCharPointerArray uchar^[] = "things";	
+// 	}
+// }
 
-	aCharPointerArray uchar^[] = "things";
-}
+aFunctionCall(thing1, 1234, "strings fo' days");
+
+// func aFunctionDecl();
 
 //func thing(arg1 int32^, arg2 uint8[4]) -> uint8[]{
 //	arg2[0] = @arg1;

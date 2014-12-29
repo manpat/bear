@@ -1,20 +1,21 @@
-///////// Start symbol /////////
+///////// Start symbol ///////// done
 
 Program -> StatementList $
 
-///////// Statement /////////
+///////// Statement ///////// done
 
 StatementList -> Statement StatementList
 StatementList -> ə
 
-Statement -> DeclOrAssign 
+Statement -> DeclAssignOrFuncCall 
 Statement -> FuncDeclOrDef 
 Statement -> Return
 Statement -> Block
 
-///////// DeclOrAssign /////////
+///////// DeclAssignOrFuncCall ///////// done
 
-DeclOrAssign -> identifier OptionalType OptionalAssign ';'
+DeclAssignOrFuncCall -> identifier OptionalType OptionalAssign ';'
+DeclAssignOrFuncCall -> identifier FuncCall ';'
 
 OptionalType -> Type
 OptionalType -> ə
@@ -28,10 +29,10 @@ Block -> '{' StatementList '}'
 
 ///////// Func call /////////
 
-FuncCall -> identifier '(' ArgumentList ')'
+FuncCall -> '(' ArgumentList ')'
 
-ArgumentList -> Expr ',' ArgumentList
-ArgumentList -> Expr
+ArgumentList -> NonTupleExpr ',' ArgumentList
+ArgumentList -> NonTupleExpr
 ArgumentList -> ə
 
 ///////// Func Declarations and Definitions /////////
@@ -56,11 +57,13 @@ Parameter -> Type
 
 Return -> 'return' Expr ';'
 
-///////// EXPRESSIONS /////////
+///////// EXPRESSIONS ///////// done
 
 Expr -> BinaryOpAddPrec Tuple
 Tuple -> ',' BinaryOpAddPrec Tuple
 Tuple -> ə
+
+NonTupleExpr -> BinaryOpAddPrec
 
 BinaryOpAddPrec -> BinaryOpMulPrec BinaryOpAddPrecR 
 
@@ -81,13 +84,13 @@ UnaryOp -> '!' UnaryOp
 UnaryOp -> ExprTerm
 
 ExprTerm -> '(' Expr ')'
-ExprTerm -> FuncCall
+ExprTerm -> identifier FuncCall
 ExprTerm -> identifier
 ExprTerm -> identifier AssignmentStub
 ExprTerm -> number
 ExprTerm -> '"' string '"'
 
-///////// Type /////////
+///////// Type ///////// underway
 
 Type -> TypeModifiers
 

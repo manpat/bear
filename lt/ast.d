@@ -3,11 +3,9 @@ module lt.ast;
 import std.stdio, std.conv;
 
 struct ASTNode {
-	enum Type {
+	enum NodeType {
 		Invalid,
-		Root,
 
-		Statement,
 		StatementList,
 		Assignment,
 		Declaration,
@@ -15,6 +13,7 @@ struct ASTNode {
 		FunctionDeclaration,
 		FunctionDefinition,
 		FunctionCall,
+		FunctionArgumentList,
 
 		Tuple,
 		Block,
@@ -31,24 +30,26 @@ struct ASTNode {
 		String,
 	}
 
-	Type type;
+	NodeType type;
 	ASTNode* left = null;
 	ASTNode* right = null;
 
-	char[] name = null;
-	TypeInfo* typeinfo = null;
-	LiteralInfo* literalinfo = null;
+	ASTNode*[] list = null;
 
-	this(Type _type){
+	char[] name = null;
+	ASTTypeInfo* typeinfo = null;
+	ASTLiteralInfo* literalinfo = null;
+
+	this(NodeType _type){
 		type = _type;
 	}
 
 	string toString(){
-		if((type == Type.Number || type == Type.String) 
+		if((type == NodeType.Number || type == NodeType.String) 
 			&& literalinfo){
 
 			return to!string(literalinfo.text);
-		}else if(type == Type.Identifier && name){
+		}else if(type == NodeType.Identifier && name){
 			return to!string(name);
 		}
 
@@ -58,18 +59,28 @@ struct ASTNode {
 			s ~= " " ~ left.toString;
 		}
 		if(right){
-			if(type == Type.StatementList){
+			if(type == NodeType.StatementList){
 				s ~= "\n";
 			}
 			s ~= " " ~ right.toString;
 		}
-		s ~= ")";
 
+		if(list){
+			s ~= " [";
+
+			foreach(i; list){
+				s ~= i.toString ~ ", ";
+			}
+			s = s[0..$-2];
+			s ~= "]";
+		}
+
+		s ~= ")";
 		return s;
 	}
 }
 
-struct TypeInfo {
+struct ASTTypeInfo {
 	enum Primitive {
 		Void,
 		Integer,
@@ -84,6 +95,10 @@ struct TypeInfo {
 	bool unsigned;
 }
 
-struct LiteralInfo {
+struct ASTLiteralInfo {
 	char[] text;
+}
+
+struct ASTFunctionInfo {
+
 }

@@ -8,7 +8,7 @@ import lt.parserdebug;
 
 class Parser {
 	private alias TT = Token.Type;
-	private alias AT = ASTNode.Type;
+	private alias AT = ASTNode.NodeType;
 	private Token[] tokens;
 	private Token* next;
 
@@ -91,9 +91,23 @@ private:
 
 		if(Check(TT.EOF)) return null;
 
-		auto node = new ASTNode(AT.StatementList);
-		node.left = ParseStatement();
-		if(node.left) node.right = ParseStatementList();
+		ASTNode* node = null;
+
+		auto first = ParseStatement();
+		if(first){
+			if(!Check(TT.EOF) && !Check(TT.RightBrace)){
+				node = new ASTNode(AT.StatementList);
+				node.list ~= first;
+
+				do{
+					node.list ~= ParseStatement();
+				
+				}while(!Check(TT.EOF) && !Check(TT.RightBrace));
+
+			}else{
+				node = first;
+			}
+		}
 
 		return node;
 	}
@@ -103,7 +117,7 @@ private:
 		ASTNode* node = null;
 
 		if(Check(TT.Identifier)){
-			node = ParseDeclOrAssign();
+			node = ParseDeclAssignOrFuncCall();
 
 		}else if(Check(TT.Function)){
 			node = ParseFuncDeclOrDef();
@@ -124,27 +138,32 @@ private:
 
 	// Declarations and Assignments //////////////////////
 
-	ASTNode* ParseDeclOrAssign(){
-		auto __sd = ScopeDebug("ParseDeclOrAssign");
+	ASTNode* ParseDeclAssignOrFuncCall(){
+		auto __sd = ScopeDebug("ParseDeclAssignOrFuncCall");
 		auto id = ParseIdentifier();
 		ASTNode* node = null;
 
-		auto type = ParseOptionalType();
-		if(type) {
-			node = new ASTNode(AT.Declaration);
-			node.typeinfo = type.typeinfo;
+		if(Check(TT.LeftParen)){
+			node = ParseFuncCall(id);
 
-			destroy(type);
-			type = null;
-		}
+		}else{
+			auto type = ParseOptionalType();
+			if(type) {
+				node = new ASTNode(AT.Declaration);
+				node.typeinfo = type.typeinfo;
 
-		auto assign = ParseOptionalAssign();
-		if(assign){
-			if(!node) node = new ASTNode(AT.Assignment);
-			node.right = assign;
+				destroy(type);
+				type = null;
+			}
 
-		}else if(!node){
-			Error("An identifier at the beginning of a statement must form either a type or an assignment");
+			auto assign = ParseOptionalAssign();
+			if(assign){
+				if(!node) node = new ASTNode(AT.Assignment);
+				node.right = assign;
+
+			}else if(!node){
+				Error("An identifier at the beginning of a statement must form either a type or an assignment");
+			}
 		}
 
 		node.left = id;
@@ -193,14 +212,32 @@ private:
 
 	// Function calls ////////////////////////////////////
 
-	ASTNode* ParseFuncCall(){
+	ASTNode* ParseFuncCall(ASTNode* id){
 		auto __sd = ScopeDebug("ParseFuncCall");
+		auto node = new ASTNode(AT.FunctionCall);
+		node.left = id;
 
-		return null;
+		Match(TT.LeftParen);
+		node.right = ParseArgumentList();
+		Match(TT.RightParen);
+
+		return node;
 	}
 
 	ASTNode* ParseArgumentList(){
 		auto __sd = ScopeDebug("ParseArgumentList");
+
+		if(!Check(TT.RightParen)){
+			auto node = new ASTNode(AT.FunctionArgumentList);
+			node.list ~= ParseNonTupleExpression();
+
+			while(Check(TT.Comma)){
+				Match(TT.Comma);
+				node.list ~= ParseNonTupleExpression();
+			}
+
+			return node;
+		}
 
 		return null;
 	}
@@ -209,6 +246,12 @@ private:
 
 	ASTNode* ParseFuncDeclOrDef(){
 		auto __sd = ScopeDebug("ParseFuncDeclOrDef");
+		Match(TT.Function);
+
+		auto node = new ASTNode(AT.FunctionDeclaration);
+		auto id = ParseIdentifier(); // Remove for lambdas?
+
+
 
 		return null;
 	}
@@ -264,17 +307,22 @@ private:
 		auto __sd = ScopeDebug("ParseExpressionR");
 
 		if(Check(TT.Comma)){
-			Match(TT.Comma);
-
-			auto left = node;
+			auto first = node;
 			node = new ASTNode(AT.Tuple);
-			node.left = left;
-			node.right = ParseBinOpAddPrecedence();
+			node.list ~= first;
 
-			node = ParseTuple(node);
+			do{
+				Match(TT.Comma);
+				node.list ~= ParseBinOpAddPrecedence();
+				
+			}while(Check(TT.Comma));
 		}
 
 		return node;
+	}
+
+	ASTNode* ParseNonTupleExpression(){
+		return ParseBinOpAddPrecedence();
 	}
 
 	ASTNode* ParseBinOpAddPrecedence(){
@@ -443,7 +491,7 @@ private:
 		auto __sd = ScopeDebug("ParseBaseType");
 		auto tok = Match(TT.Type);
 		auto node = new ASTNode(AT.Type);
-		node.typeinfo = new lt.ast.TypeInfo;
+		node.typeinfo = new ASTTypeInfo;
 
 		// TODO: actually do type stuff /////////////////////////
 
@@ -465,7 +513,7 @@ private:
 		auto __sd = ScopeDebug("ParseNumber");
 		auto tok = Match(TT.Number);
 		auto node = new ASTNode(AT.Number);
-		node.literalinfo = new LiteralInfo;
+		node.literalinfo = new ASTLiteralInfo;
 		node.literalinfo.text = tok.text;
 
 		return node;
@@ -475,7 +523,7 @@ private:
 		auto __sd = ScopeDebug("ParseString");
 		auto tok = Match(TT.String);
 		auto node = new ASTNode(AT.String);
-		node.literalinfo = new LiteralInfo;
+		node.literalinfo = new ASTLiteralInfo;
 		node.literalinfo.text = tok.text[1..$-1];
 
 		return node;
