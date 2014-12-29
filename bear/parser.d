@@ -1,10 +1,10 @@
-module lt.parser;
+module bear.parser;
 
 import std.stdio;
 import std.conv;
-import lt.tokeniser : Token;
-import lt.ast;
-import lt.parserdebug;
+import bear.tokeniser : Token;
+import bear.ast;
+import bear.parserdebug;
 
 class Parser {
 	private alias TT = Token.Type;

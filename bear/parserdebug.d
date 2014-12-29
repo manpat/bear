@@ -1,4 +1,4 @@
-module lt.parserdebug;
+module bear.parserdebug;
 
 import std.stdio;
 

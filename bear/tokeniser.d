@@ -1,4 +1,4 @@
-module lt.tokeniser;
+module bear.tokeniser;
 
 import std.string;
 import std.regex;

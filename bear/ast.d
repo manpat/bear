@@ -1,4 +1,4 @@
-module lt.ast;
+module bear.ast;
 
 import std.stdio, std.conv;
 

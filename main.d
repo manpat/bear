@@ -1,14 +1,14 @@
 module main;
 
 import std.stdio, std.file;
-import lt;
+import bear;
 
 void main(){
 	try{
 		writeln("Language Test");
 
 		auto tok = new Tokeniser();
-		auto tokens = tok.Parse(cast(char[]) read("test.lt"));
+		auto tokens = tok.Parse(cast(char[]) read("test.bear"));
 
 		writeln("Tokenising done\n");
 		foreach(ref t; tokens){
