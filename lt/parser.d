@@ -249,27 +249,43 @@ private:
 		Match(TT.Function);
 
 		auto node = new ASTNode(AT.FunctionDeclaration);
-		auto id = ParseIdentifier(); // Remove for lambdas?
+		node.functioninfo = new ASTFunctionInfo;
 
+		node.left = ParseIdentifier(); // Remove for lambdas?
 
+		auto param = ParseFuncDeclParam();
+		auto rettype = ParseFuncDeclType();
 
-		return null;
-	}
+		if(Check(TT.LeftBrace)){
+			node.type = AT.FunctionDefinition;
+			node.right = ParseBlock();
+		}else{
+			Match(TT.SemiColon);
+		}
 
-	ASTNode* ParseFuncDecl(){
-		auto __sd = ScopeDebug("ParseFuncDecl");
-
-		return null;
+		return node;
 	}
 
 	ASTNode* ParseFuncDeclParam(){
 		auto __sd = ScopeDebug("ParseFuncDeclParam");
+		ASTNode* node = null;
 
-		return null;
+		if(Check(TT.LeftParen)){
+			Match(TT.LeftParen);
+			node = ParseParameterList();
+			Match(TT.RightParen);
+		}
+
+		return node;
 	}
 
 	ASTNode* ParseFuncDeclType(){
 		auto __sd = ScopeDebug("ParseFuncDeclType");
+
+		if(Check(TT.Returns)){
+			Match(TT.Returns);
+			return ParseType();
+		}
 
 		return null;
 	}
@@ -288,8 +304,11 @@ private:
 
 	ASTNode* ParseReturn(){
 		auto __sd = ScopeDebug("ParseReturn");
+		Match(TT.Return);
+		auto expr = ParseExpression();
+		Match(TT.SemiColon);
 
-		return null;
+		return expr;
 	}
 
 	// Expressions ///////////////////////////////////////

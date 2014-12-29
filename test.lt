@@ -15,9 +15,13 @@
 // 	}
 // }
 
-aFunctionCall(thing1, 1234, "strings fo' days");
+// aFunctionCall(thing1, 1234, "strings fo' days");
 
-// func aFunctionDecl();
+func aFunctionDecl();
+
+func aFunctionDef -> int {
+	return 5;
+}
 
 //func thing(arg1 int32^, arg2 uint8[4]) -> uint8[]{
 //	arg2[0] = @arg1;

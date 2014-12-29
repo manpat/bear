@@ -37,10 +37,8 @@ ArgumentList -> ə
 
 ///////// Func Declarations and Definitions /////////
 
-FuncDeclOrDef -> 'func' identifier FuncDecl
-FuncDeclOrDef -> 'func' identifier FuncDecl Block
-
-FuncDecl -> FuncDeclParam FuncDeclType
+FuncDeclOrDef -> 'func' identifier FuncDeclParam FuncDeclType ';'
+FuncDeclOrDef -> 'func' identifier FuncDeclParam FuncDeclType Block
 
 FuncDeclParam -> '(' ParameterList ')'
 FuncDeclParam -> ə

@@ -39,6 +39,7 @@ struct ASTNode {
 	char[] name = null;
 	ASTTypeInfo* typeinfo = null;
 	ASTLiteralInfo* literalinfo = null;
+	ASTFunctionInfo* functioninfo = null;
 
 	this(NodeType _type){
 		type = _type;
@@ -100,5 +101,5 @@ struct ASTLiteralInfo {
 }
 
 struct ASTFunctionInfo {
-
+	ASTTypeInfo* returnTypeInfo;
 }
