@@ -1,21 +1,21 @@
 // Comments
 
-// anInt int;
-// aPointer int^ = @anInt;
-// anotherInt int = ^aPointer;
+anInt int;
+aPointer int^ = @anInt;
+anotherInt int = ^aPointer;
 
-// aShort short = 1;
-// anExpression long = (aShort = 2), 1 + -aShort * 3 * (4 + 5);
+aShort short = 1;
+anExpression long = (aShort = 2), 1 + -aShort * 3 * (4 + 5);
 
-// {
-// 	aString string;
-// 	aString = "I am a string";
-// 	{
-// 		aCharPointerArray uchar^[] = "things";	
-// 	}
-// }
+{
+	aString string;
+	aString = "I am a string";
+	{
+		aCharPointerArray uchar^[] = "things";	
+	}
+}
 
-// aFunctionCall(thing1, 1234, "strings fo' days");
+aFunctionCall(thing1, 1234, "strings fo' days");
 
 func aFunctionDecl();
 
@@ -23,12 +23,16 @@ func aFunctionDef(arg1 int^, /*arg2*/string[]) -> int {
 	return ^arg1;
 }
 
-//func thing(arg1 int32^, arg2 uint8[4]) -> uint8[]{
-//	arg2[0] = @arg1;
-//	return arg1;
-//}
+//////////////////////////////////////////////////////////
+// Array subscript lvalues haven't been implemented yet //
+//////////////////////////////////////////////////////////
 
-//// Parenthesis optional
-//func main { 
-//	thing();
-//}
+// func thing(arg1 int^, arg2 uint[4]) -> uint[]{
+// 	arg2[0] = ^arg1;
+// 	return arg1;
+// }
+
+// Parenthesis optional
+func main { 
+	thing();
+}
