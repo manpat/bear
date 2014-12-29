@@ -19,12 +19,13 @@ aFunctionCall(thing1, 1234, "strings fo' days");
 
 func aFunctionDecl();
 
-func aFunctionDef(arg1 int^, /*arg2*/string[]) -> int {
+func aFunctionDef(arg1 int^, /*arg2*/ string[]) -> int {
 	return ^arg1;
 }
 
 func thing(arg1 int^, arg2 uint[4]) -> uint[]{
 	arg2[0] = ^arg1;
+	^arg1 = arg2[1];
 	return arg1;
 }
 

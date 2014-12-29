@@ -41,7 +41,7 @@ struct Token {
 	Type type;
 	char[] text;
 
-	// Debug info
+	DebugInfo* debuginfo;
 	// filename, line number, pre analysis line
 }
 
@@ -81,12 +81,14 @@ class Tokeniser {
 			(?P<Type>
 				void|u?short|u?int|u?long|
 				float|double|u?char|
-				string)						|
+				string|bool)				|
 
 			(?P<Comma>,)					|
 
 			(?P<Identifier>[a-zA-Z_]\w*)	|
-			(?P<Number>[0-9][0-9_]*)
+			(?P<Number>[0-9][0-9_]*)		|
+
+			(?P<SomethingElse>.)
 			`, "xsm");
 
 		auto startingWhitespaceRegex = ctRegex!(`^\s*`);
@@ -108,12 +110,10 @@ class Tokeniser {
  			if(tok.type != Token.Type.Comment)
 				tokens ~= tok;
 
-			if(IsEOF()) break;
-
 			if(prevpos == pos){
 				i++;
 				if(i == 20) {
-					writeln("Infinite loop");
+					writeln("Infinite loop in tokeniser");
 					break;
 				}
 			}
@@ -122,7 +122,6 @@ class Tokeniser {
 		}
 
 		tokens ~= Token(Token.Type.EOF, cast(char[])"EOF");
-
 
 		return tokens;
 	}
@@ -142,6 +141,10 @@ private:
 		return data[pos..$];
 	}
 
+	void Error(string msg){
+		throw new Exception("error: " ~ msg);
+	}
+
 	bool EatWhiteSpace(){
 		auto cs = matchFirst(Data(), startingWhitespaceRegex);
 		if(cs){
@@ -159,6 +162,12 @@ private:
 		if(m){
 			tok.type = Token.Type.Unknown;
 			tok.text = m.front;
+
+			auto di = new DebugInfo;
+			di.fileName = "<filename>"; // TODO: Actually get file name
+			di.lineNumber = 123; // TODO: Actually get line number
+			di.tokenText = tok.text;
+			tok.debuginfo = di;
 
 			if(m["Comment"].length != 0){
 				tok.type = Token.Type.Comment;
@@ -217,13 +226,24 @@ private:
 			}else if(m["Comma"].length != 0){
 				tok.type = Token.Type.Comma;
 
+
+			}else if(m["SomethingElse"].length != 0){
+				tok.type = Token.Type.Unknown;
+				Error(cast(immutable (char[])) ("Unknown token " ~ tok.text));
 			}
 
 			Advance(m.front.length);
 		}else{
 			tok.type = Token.Type.Unknown;
+			Error("Unable to tokenise");
 		}
 
 		return tok;
 	}
+}
+
+struct DebugInfo {
+	string fileName;
+	ulong lineNumber;
+	char[] tokenText;
 }

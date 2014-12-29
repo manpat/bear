@@ -1,4 +1,7 @@
 Version 1:
+	Loops
+	Conditional statements
+
 	Structs
 	Reference Types + Const, etc...
 
@@ -6,6 +9,21 @@ Version 2:
 	Variadic functions
 	Templates
 	Classes
+	Interfaces
 	Lambdas
+	Ranges
+	Slices
+
+	"On leave scope do this thing"
+		defer
+		scope(exit)
+		scope(success)
+		scope(failure)
+
+	Exceptions
 
 	CTFE
+	Metaprogramming
+		static if
+
+	C interop

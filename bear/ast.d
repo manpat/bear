@@ -88,15 +88,18 @@ struct ASTNode {
 
 struct ASTTypeInfo {
 	enum Primitive {
-		Void,
-		Integer,
+		Void, // Maybe
+		Short,
+		Int,
+		Long,
 		Float,
+		Double,
+
 		Character,
 		Function,
 	}
 
 	Primitive primitive;
-	uint width;
 	uint pointerLevel;
 	bool unsigned;
 }

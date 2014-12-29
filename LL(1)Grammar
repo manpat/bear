@@ -2,7 +2,7 @@
 
 Program -> StatementList $
 
-///////// Statement ///////// done
+///////// Statement ///////// underway
 
 StatementList -> Statement StatementList
 StatementList -> ə
@@ -11,6 +11,11 @@ Statement -> DeclAssignOrFuncCall
 Statement -> FuncDeclOrDef 
 Statement -> Return
 Statement -> Block
+Statement -> ConditionalStatement
+Statement -> Loop
+
+Statement -> 'break' ';'
+Statement -> 'continue' ';' // Add a way to specify which loop to continue
 
 ///////// DeclAssignOrFuncCall ///////// done
 
@@ -36,7 +41,7 @@ ArgumentList -> NonTupleExpr ',' ArgumentList
 ArgumentList -> NonTupleExpr
 ArgumentList -> ə
 
-///////// Func Declarations and Definitions /////////
+///////// Func Declarations and Definitions ///////// done
 
 FuncDeclOrDef -> 'func' identifier FuncDeclParam FuncDeclType ';'
 FuncDeclOrDef -> 'func' identifier FuncDeclParam FuncDeclType Block
@@ -111,7 +116,25 @@ type -> u?int
 type -> u?long
 
 type -> u?char
+type -> bool
 type -> string
 
 type -> float
 type -> double
+
+///////// Conditional Statements /////////
+
+ConditionalStatement -> 'if' Condition Block OptionalElseblock
+
+Condition -> '(' Expr ')'
+
+OptionalElseblock -> 'else' Block
+OptionalElseblock -> ə
+
+///////// Loops /////////
+
+Loop -> 'for' RangeSpec Block
+
+RangeSpec -> '(' Statement ';' Statement ';' Statement ')' // C style for
+RangeSpec -> '(' identifier 'in' Expr ')' // Foreach
+RangeSpec -> ə // Infinite loop
