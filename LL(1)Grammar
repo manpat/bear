@@ -15,6 +15,7 @@ Statement -> Block
 ///////// DeclAssignOrFuncCall ///////// done
 
 DeclAssignOrFuncCall -> identifier OptionalType OptionalAssign ';'
+DeclAssignOrFuncCall -> identifier ArraySubscript AssignmentStub ';'
 DeclAssignOrFuncCall -> identifier FuncCall ';'
 
 OptionalType -> Type
@@ -83,10 +84,13 @@ UnaryOp -> ExprTerm
 
 ExprTerm -> '(' Expr ')'
 ExprTerm -> identifier FuncCall
-ExprTerm -> identifier
+ExprTerm -> identifier ArraySubscript
 ExprTerm -> identifier AssignmentStub
+ExprTerm -> identifier
 ExprTerm -> number
 ExprTerm -> '"' string '"'
+
+ArraySubscript -> '[' Expr ']'
 
 ///////// Type ///////// underway
 

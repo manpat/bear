@@ -27,6 +27,7 @@ struct ASTNode {
 		AddressOf, Not,
 
 		ReturnStatement,
+		ArraySubscript,
 
 		Identifier,
 		Type,

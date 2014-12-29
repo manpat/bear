@@ -23,14 +23,10 @@ func aFunctionDef(arg1 int^, /*arg2*/string[]) -> int {
 	return ^arg1;
 }
 
-//////////////////////////////////////////////////////////
-// Array subscript lvalues haven't been implemented yet //
-//////////////////////////////////////////////////////////
-
-// func thing(arg1 int^, arg2 uint[4]) -> uint[]{
-// 	arg2[0] = ^arg1;
-// 	return arg1;
-// }
+func thing(arg1 int^, arg2 uint[4]) -> uint[]{
+	arg2[0] = ^arg1;
+	return arg1;
+}
 
 // Parenthesis optional
 func main { 

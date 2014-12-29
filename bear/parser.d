@@ -146,6 +146,11 @@ private:
 		if(Check(TT.LeftParen)){
 			node = ParseFuncCall(id);
 
+		}else if(Check(TT.LeftSquare)){
+			node = new ASTNode(AT.Assignment);
+			node.left = ParseArraySubscript(id);
+			node.right = ParseAssignmentStub();
+
 		}else{
 			auto type = ParseOptionalType();
 			if(type) {
@@ -161,12 +166,14 @@ private:
 				if(!node) node = new ASTNode(AT.Assignment);
 				node.right = assign;
 
-			}else if(!node){
+			}
+
+			if(!node){
 				Error("An identifier at the beginning of a statement must form either a type or an assignment");
 			}
-		}
 
-		node.left = id;
+			node.left = id;
+		}
 
 		Match(TT.SemiColon);
 		return node;
@@ -491,11 +498,23 @@ private:
 				node = new ASTNode(AT.Assignment);
 				node.left = left;
 				node.right = ParseAssignmentStub();
+			}else if(Check(TT.LeftSquare)){
+				node = ParseArraySubscript(node);
 			}
 
 		}else if(Check(TT.String)){
 			node = ParseString();
 		}
+
+		return node;
+	}
+
+	ASTNode* ParseArraySubscript(ASTNode* id){
+		Match(TT.LeftSquare);
+		auto node = new ASTNode(AT.ArraySubscript);
+		node.left = id;
+		node.right = ParseExpression();
+		Match(TT.RightSquare);
 
 		return node;
 	}
