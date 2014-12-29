@@ -19,8 +19,8 @@
 
 func aFunctionDecl();
 
-func aFunctionDef -> int {
-	return 5;
+func aFunctionDef(arg1 int^, /*arg2*/string[]) -> int {
+	return ^arg1;
 }
 
 //func thing(arg1 int32^, arg2 uint8[4]) -> uint8[]{

@@ -67,6 +67,7 @@ class Tokeniser {
 
 			(?P<Function>func)				|
 			(?P<Returns>->)					|
+			(?P<Return>return)				|
 			(?P<Pointer>\^)					|
 			(?P<At>@)						|
 			(?P<Assign>=)					|
@@ -192,6 +193,8 @@ private:
 				tok.type = Token.Type.Function;
 			}else if(m["Returns"].length != 0){
 				tok.type = Token.Type.Returns;
+			}else if(m["Return"].length != 0){
+				tok.type = Token.Type.Return;
 			}else if(m["Pointer"].length != 0){
 				tok.type = Token.Type.Pointer;
 			}else if(m["At"].length != 0){

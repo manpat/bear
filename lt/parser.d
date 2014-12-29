@@ -253,8 +253,8 @@ private:
 
 		node.left = ParseIdentifier(); // Remove for lambdas?
 
-		auto param = ParseFuncDeclParam();
-		auto rettype = ParseFuncDeclType();
+		node.functioninfo.parameterList = ParseFuncDeclParam();
+		node.functioninfo.returnType = ParseFuncDeclType();
 
 		if(Check(TT.LeftBrace)){
 			node.type = AT.FunctionDefinition;
@@ -293,22 +293,50 @@ private:
 	ASTNode* ParseParameterList(){
 		auto __sd = ScopeDebug("ParseParameterList");
 
+		if(Check(TT.Identifier)){
+			auto first = ParseParameter();
+
+			if(Check(TT.Comma) && first){
+				auto plist = new ASTNode(AT.FunctionParameterList);
+				plist.list ~= first;
+
+				do{
+					Match(TT.Comma);
+					plist.list ~= ParseParameter();
+
+				} while(Check(TT.Comma));
+
+				return plist;
+			}
+
+			return first;
+		}
+
 		return null;
 	}
 
 	ASTNode* ParseParameter(){
 		auto __sd = ScopeDebug("ParseParameter");
+		auto param = new ASTNode(AT.FunctionParameter);
 
-		return null;
+		if(Check(TT.Identifier)){
+			param.left = ParseIdentifier();
+		}
+
+		param.right = ParseType();
+
+		return param;
 	}
 
 	ASTNode* ParseReturn(){
 		auto __sd = ScopeDebug("ParseReturn");
+
 		Match(TT.Return);
-		auto expr = ParseExpression();
+		auto node = new ASTNode(AT.ReturnStatement);
+		node.left = ParseExpression();
 		Match(TT.SemiColon);
 
-		return expr;
+		return node;
 	}
 
 	// Expressions ///////////////////////////////////////

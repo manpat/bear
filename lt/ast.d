@@ -14,6 +14,8 @@ struct ASTNode {
 		FunctionDefinition,
 		FunctionCall,
 		FunctionArgumentList,
+		FunctionParameterList,
+		FunctionParameter,
 
 		Tuple,
 		Block,
@@ -23,6 +25,8 @@ struct ASTNode {
 
 		Negate,	Deref, 
 		AddressOf, Not,
+
+		ReturnStatement,
 
 		Identifier,
 		Type,
@@ -101,5 +105,6 @@ struct ASTLiteralInfo {
 }
 
 struct ASTFunctionInfo {
-	ASTTypeInfo* returnTypeInfo;
+	ASTNode* parameterList;
+	ASTNode* returnType;
 }
