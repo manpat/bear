@@ -1,0 +1,11 @@
+Version 1:
+	Structs
+	Reference Types + Const, etc...
+
+Version 2:
+	Variadic functions
+	Templates
+	Classes
+	Lambdas
+
+	CTFE
