@@ -1,6 +1,7 @@
 Version 1:
 	Loops
 	Conditional statements
+	Comparison operators
 
 	Structs
 	Reference Types + Const, etc...
@@ -14,11 +15,13 @@ Version 2:
 	Ranges
 	Slices
 
+	Foreach loop
+
 	"On leave scope do this thing"
 		defer
-		scope(exit)
-		scope(success)
-		scope(failure)
+		scope(exit);
+		scope(success);
+		scope(failure);
 
 	Exceptions
 

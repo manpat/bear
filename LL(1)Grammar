@@ -32,6 +32,7 @@ OptionalAssign -> ə
 AssignmentStub -> '=' Expr
 
 Block -> '{' StatementList '}'
+Block -> '{' '}'
 
 ///////// Func call ///////// done
 
@@ -69,6 +70,8 @@ Tuple -> ə
 
 NonTupleExpr -> BinaryOpAddPrec
 
+// Comparison operators go here
+
 BinaryOpAddPrec -> BinaryOpMulPrec BinaryOpAddPrecR 
 
 BinaryOpAddPrecR -> '+' BinaryOpMulPrec BinaryOpAddPrecR
@@ -93,7 +96,12 @@ ExprTerm -> identifier ArraySubscript
 ExprTerm -> identifier AssignmentStub
 ExprTerm -> identifier
 ExprTerm -> number
+ExprTerm -> languageConstant
 ExprTerm -> '"' string '"'
+
+languageConstant -> true
+languageConstant -> false
+languageConstant -> null
 
 ArraySubscript -> '[' Expr ']'
 
@@ -124,17 +132,18 @@ type -> double
 
 ///////// Conditional Statements /////////
 
-ConditionalStatement -> 'if' Condition Block OptionalElseblock
+ConditionalStatement -> 'if' Condition Statement OptionalElseblock
 
 Condition -> '(' Expr ')'
 
-OptionalElseblock -> 'else' Block
+OptionalElseblock -> 'else' Statement
 OptionalElseblock -> ə
 
 ///////// Loops /////////
 
-Loop -> 'for' RangeSpec Block
+Loop -> 'for' RangeSpec Statement
 
-RangeSpec -> '(' Statement ';' Statement ';' Statement ')' // C style for
+RangeSpec -> '(' Expr ')' // While
+RangeSpec -> '(' Statement ';' Expression ';' Expression ')' // C style for
 RangeSpec -> '(' identifier 'in' Expr ')' // Foreach
 RangeSpec -> ə // Infinite loop

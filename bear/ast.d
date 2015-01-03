@@ -6,38 +6,48 @@ struct ASTNode {
 	enum NodeType {
 		Invalid,
 
-		StatementList,
-		Assignment,
-		Declaration,
+		StatementList, // list = [statement*]
+		Assignment, // left = ident or subscript, right = expr
+		Declaration, // left = ident, right = expr
 
-		FunctionDeclaration,
-		FunctionDefinition,
-		FunctionCall,
-		FunctionArgumentList,
-		FunctionParameterList,
-		FunctionParameter,
+		FunctionDeclaration, // left = ident, functioninfo
+		FunctionDefinition, // left = ident, right = block, functioninfo
+		FunctionCall, // left = ident, right = arg list
+		FunctionArgumentList, // list = [nontuple expr*]
+		FunctionParameterList, // list = [funcparameter*]
+		FunctionParameter, // left = [ident], right = type
 
-		Tuple,
-		Block,
+		Tuple, // list = [nontuple expr*] 
+		Block, // list = [statement*]
 
+		// left = expr, right = expr
 		Plus, Minus,
 		Times, Divide,
 
+		// left = expr
 		Negate,	Deref, 
 		AddressOf, Not,
 
-		ReturnStatement,
-		ArraySubscript,
+		ReturnStatement, // left = expr
+		ArraySubscript, // left = ident, right = expr
 
-		Identifier,
-		Type,
-		Number,
-		String,
+		ConditionalStatement, // left = expr, right = statement, third = statement
+		Loop, // left = expr or null, right = statement
+
+		Identifier, // name
+		Type, // typeinfo
+		Number, // literalinfo
+		String, // literalinfo
+
+		TrueConstant,
+		FalseConstant,
+		NullConstant,
 	}
 
 	NodeType type;
 	ASTNode* left = null;
 	ASTNode* right = null;
+	ASTNode* third = null;
 
 	ASTNode*[] list = null;
 
@@ -69,6 +79,9 @@ struct ASTNode {
 				s ~= "\n";
 			}
 			s ~= " " ~ right.toString;
+		}
+		if(third){
+			s ~= " " ~ third.toString;
 		}
 
 		if(list){

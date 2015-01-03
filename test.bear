@@ -1,35 +1,45 @@
 // Comments
 
-anInt int;
-aPointer int^ = @anInt;
-anotherInt int = ^aPointer;
+// anInt int;
+// aPointer int^ = @anInt;
+// anotherInt int = ^aPointer;
 
-aShort short = 1;
-anExpression long = (aShort = 2), 1 + -aShort * 3 * (4 + 5);
+if(c1)
+	f1();
 
-{
-	aString string;
-	aString = "I am a string";
-	{
-		aCharPointerArray uchar^[] = "things";	
-	}
-}
+else if(c2)
+	for(true) f2();
+	
+else
+	f3();
 
-aFunctionCall(thing1, 1234, "strings fo' days");
 
-func aFunctionDecl();
+// aShort short = 1;
+// anExpression long = (aShort = 2), 1 + -aShort * 3 * (4 + 5);
 
-func aFunctionDef(arg1 int^, /*arg2*/ string[]) -> int {
-	return ^arg1;
-}
+// {
+// 	aString string;
+// 	aString = "I am a string";
+// 	{
+// 		aCharPointerArray uchar^[] = "things";	
+// 	}
+// }
 
-func thing(arg1 int^, arg2 uint[4]) -> uint[]{
-	arg2[0] = ^arg1;
-	^arg1 = arg2[1];
-	return arg1;
-}
+// aFunctionCall(thing1, 1234, "strings fo' days");
 
-// Parenthesis optional
-func main { 
-	thing();
-}
+// func aFunctionDecl();
+
+// func aFunctionDef(arg1 int^, /*arg2*/ string[]) -> int {
+// 	return ^arg1;
+// }
+
+// func thing(arg1 int^, arg2 uint[4]) -> uint[]{
+// 	arg2[0] = ^arg1;
+// 	^arg1 = arg2[1];
+// 	return arg1;
+// }
+
+// // Parenthesis optional
+// func main { 
+// 	thing();
+// }

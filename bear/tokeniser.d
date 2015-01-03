@@ -10,6 +10,7 @@ struct Token {
 		EOF,
 		Comment, // discarded immediately
 
+		LanguageConstant,
 		Identifier,
 		String,
 		Number,
@@ -36,6 +37,10 @@ struct Token {
 
 		Not,
 		Assign,
+
+		If, Else,
+		For, 
+		In, // Ver 2
 	}
 	
 	Type type;
@@ -65,9 +70,9 @@ class Tokeniser {
 			(?P<LeftSquare>\[)				|
 			(?P<RightSquare>\])				|
 
-			(?P<Function>func)				|
+			(?P<Function>\bfunc\b)			|
 			(?P<Returns>->)					|
-			(?P<Return>return)				|
+			(?P<Return>\breturn\b)			|
 			(?P<Pointer>\^)					|
 			(?P<At>@)						|
 			(?P<Assign>=)					|
@@ -78,10 +83,17 @@ class Tokeniser {
 			(?P<Divide>/)					|
 			(?P<Not>!)						|
 
+			(?P<If>if)						|
+			(?P<Else>else)					|
+			(?P<For>for)					|
+			(?P<In>in)						|
+
 			(?P<Type>
 				void|u?short|u?int|u?long|
 				float|double|u?char|
 				string|bool)				|
+			(?P<LanguageConstant>
+				true|false|null)			|
 
 			(?P<Comma>,)					|
 
@@ -174,6 +186,8 @@ private:
 
 			}else if(m["Identifier"].length != 0){
 				tok.type = Token.Type.Identifier;
+			}else if(m["LanguageConstant"].length != 0){
+				tok.type = Token.Type.LanguageConstant;
 			}else if(m["Number"].length != 0){
 				tok.type = Token.Type.Number;
 			}else if(m["String"].length != 0){
@@ -225,6 +239,16 @@ private:
 
 			}else if(m["Comma"].length != 0){
 				tok.type = Token.Type.Comma;
+
+
+			}else if(m["If"].length != 0){
+				tok.type = Token.Type.If;
+			}else if(m["Else"].length != 0){
+				tok.type = Token.Type.Else;
+			}else if(m["For"].length != 0){
+				tok.type = Token.Type.For;
+			}else if(m["In"].length != 0){
+				tok.type = Token.Type.In;
 
 
 			}else if(m["SomethingElse"].length != 0){

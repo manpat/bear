@@ -19,12 +19,12 @@ class Parser {
 	}
 
 private:
-	void Error(string e){
-		throw new Exception("parser: " ~ e);
+	void Error(ST)(ST e){
+		throw new Exception("parser: " ~ to!string(e));
 	}
 
-	void InternalError(string e){
-		throw new Exception("parser internal: " ~ e);
+	void InternalError(ST)(ST e){
+		throw new Exception("parser internal: " ~ to!string(e));
 	}
 
 	void ReadNext(){
@@ -127,6 +127,12 @@ private:
 
 		}else if(Check(TT.LeftBrace)){
 			node = ParseBlock();
+
+		}else if(Check(TT.If)){
+			node = ParseConditionalStatement();
+
+		}else if(Check(TT.For)){
+			node = ParseLoop();
 
 		}else{
 			if(!Check(TT.RightBrace))
@@ -504,6 +510,9 @@ private:
 
 		}else if(Check(TT.String)){
 			node = ParseString();
+
+		}else if(Check(TT.LanguageConstant)){
+			node = ParseLanguageConstant();
 		}
 
 		return node;
@@ -564,6 +573,54 @@ private:
 		return node;
 	}
 
+	// Conditional Statements ////////////////////////////
+
+	ASTNode* ParseConditionalStatement(){
+		Match(TT.If);
+		auto node = new ASTNode(AT.ConditionalStatement);
+		node.left = ParseCondition();
+		node.right = ParseStatement();
+
+		if(Check(TT.Else)){
+			Match(TT.Else);
+			node.third = ParseStatement();
+		}
+
+		return node;
+	}
+
+	ASTNode* ParseCondition(){
+		Match(TT.LeftParen);
+		auto cond = ParseExpression();
+		Match(TT.RightParen);
+
+		return cond;
+	}
+
+	// Loops /////////////////////////////////////////////
+
+	ASTNode* ParseLoop(){
+		Match(TT.For);
+		auto node = new ASTNode(AT.Loop);
+
+		if(Check(TT.LeftParen)){
+			node.left = ParseRangeSpec();
+		}
+
+		node.right = ParseStatement();
+
+		return node;
+	}
+
+	ASTNode* ParseRangeSpec(){
+		Match(TT.LeftParen);
+
+		auto node = ParseExpression();
+
+		Match(TT.RightParen);
+		return node;
+	}
+
 	// Terminals /////////////////////////////////////////
 
 	ASTNode* ParseIdentifier(){
@@ -591,6 +648,33 @@ private:
 		auto node = new ASTNode(AT.String);
 		node.literalinfo = new ASTLiteralInfo;
 		node.literalinfo.text = tok.text[1..$-1];
+
+		return node;
+	}
+	
+	ASTNode* ParseLanguageConstant(){
+		auto __sd = ScopeDebug("ParseLanguageConstant");
+		auto tok = Match(TT.LanguageConstant);
+		ASTNode* node = null;
+
+		switch(tok.text){
+			case "true":
+				node = new ASTNode(AT.TrueConstant);
+				break;
+			case "false":
+				node = new ASTNode(AT.FalseConstant);
+				break;
+			case "null":
+				node = new ASTNode(AT.NullConstant);
+				break;
+
+			default:
+				Error("Unknown language constant " ~ tok.text);
+		}
+
+		// Language constants are literals too
+		node.literalinfo = new ASTLiteralInfo;
+		node.literalinfo.text = tok.text;
 
 		return node;
 	}
