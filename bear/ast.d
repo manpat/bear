@@ -24,6 +24,10 @@ struct ASTNode {
 		Plus, Minus,
 		Times, Divide,
 
+		Equals, NEquals,
+		LEquals, GEquals,
+		LessThan, GreaterThan,
+
 		// left = expr
 		Negate,	Deref, 
 		AddressOf, Not,

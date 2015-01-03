@@ -356,7 +356,7 @@ private:
 
 	ASTNode* ParseExpression(){
 		auto __sd = ScopeDebug("ParseExpression");
-		auto node = ParseBinOpAddPrecedence();
+		auto node = ParseComparisonOpPrecedence();
 
 		node = ParseTuple(node);
 
@@ -373,7 +373,7 @@ private:
 
 			do{
 				Match(TT.Comma);
-				node.list ~= ParseBinOpAddPrecedence();
+				node.list ~= ParseComparisonOpPrecedence();
 				
 			}while(Check(TT.Comma));
 		}
@@ -382,7 +382,56 @@ private:
 	}
 
 	ASTNode* ParseNonTupleExpression(){
-		return ParseBinOpAddPrecedence();
+		return ParseComparisonOpPrecedence();
+	}
+
+	ASTNode* ParseComparisonOpPrecedence(){
+		auto __sd = ScopeDebug("ParseComparisonOpPrecedence");
+		auto node = ParseBinOpAddPrecedence();
+
+		node = ParseComparisonOpPrecedenceR(node);
+
+		return node;
+	}
+
+	ASTNode* ParseComparisonOpPrecedenceR(ASTNode* node){
+		auto __sd = ScopeDebug("ParseComparisonOpPrecedenceR");
+		ASTNode* op = null;
+
+		if(Check(TT.Equals)){
+			Match(TT.Equals);
+			op = new ASTNode(AT.Equals);
+
+		}else if(Check(TT.NEquals)){
+			Match(TT.NEquals);
+			op = new ASTNode(AT.NEquals);
+
+		}else if(Check(TT.LEquals)){
+			Match(TT.LEquals);
+			op = new ASTNode(AT.LEquals);
+
+		}else if(Check(TT.GEquals)){
+			Match(TT.GEquals);
+			op = new ASTNode(AT.GEquals);
+
+		}else if(Check(TT.LessThan)){
+			Match(TT.LessThan);
+			op = new ASTNode(AT.LessThan);
+
+		}else if(Check(TT.GreaterThan)){
+			Match(TT.GreaterThan);
+			op = new ASTNode(AT.GreaterThan);
+		}
+
+		if(op){
+			op.left = node;
+			op.right = ParseBinOpAddPrecedence();
+			node = op;
+
+			// Non associative so no recurse
+		}
+
+		return node;
 	}
 
 	ASTNode* ParseBinOpAddPrecedence(){
@@ -396,22 +445,21 @@ private:
 
 	ASTNode* ParseBinOpAddPrecedenceR(ASTNode* node){
 		auto __sd = ScopeDebug("ParseBinOpAddPrecedenceR");
+		ASTNode* op = null;
 
 		if(Check(TT.Plus)){
-			auto tok = Match(TT.Plus);
-			auto op = new ASTNode(AT.Plus);
-			op.left = node;
-			node = op;
-			node.right = ParseBinOpMulPrecedence();
-
-			node = ParseBinOpAddPrecedenceR(node);
+			Match(TT.Plus);
+			op = new ASTNode(AT.Plus);
 
 		}else if(Check(TT.Minus)){
-			auto tok = Match(TT.Minus);
-			auto op = new ASTNode(AT.Minus);
+			Match(TT.Minus);
+			op = new ASTNode(AT.Minus);
+		}
+
+		if(op){
 			op.left = node;
+			op.right = ParseBinOpMulPrecedence();
 			node = op;
-			node.right = ParseBinOpMulPrecedence();
 
 			node = ParseBinOpAddPrecedenceR(node);
 		}
@@ -430,19 +478,18 @@ private:
 
 	ASTNode* ParseBinOpMulPrecedenceR(ASTNode* node){
 		auto __sd = ScopeDebug("ParseBinOpMulPrecedenceR");
+		ASTNode* op = null;
 
 		if(Check(TT.Star)){
-			auto tok = Match(TT.Star);
-			auto op = new ASTNode(AT.Times);
-			op.left = node;
-			node = op;
-			node.right = ParseUnaryOp();
-
-			node = ParseBinOpMulPrecedenceR(node);
+			Match(TT.Star);
+			op = new ASTNode(AT.Times);
 
 		}else if(Check(TT.Divide)){
-			auto tok = Match(TT.Divide);
-			auto op = new ASTNode(AT.Divide);
+			Match(TT.Divide);
+			op = new ASTNode(AT.Divide);
+		}
+
+		if(op){
 			op.left = node;
 			node = op;
 			node.right = ParseUnaryOp();
@@ -455,28 +502,26 @@ private:
 
 	ASTNode* ParseUnaryOp(){
 		auto __sd = ScopeDebug("ParseUnaryOp");
+		ASTNode* op = null;
 
 		if(Check(TT.Minus)){
-			auto tok = Match(TT.Minus);
-			auto op = new ASTNode(AT.Negate);
-			op.left = ParseUnaryOp();
-			return op;
+			Match(TT.Minus);
+			op = new ASTNode(AT.Negate);
 
 		}else if(Check(TT.At)){
-			auto tok = Match(TT.At);
-			auto op = new ASTNode(AT.AddressOf);
-			op.left = ParseUnaryOp();
-			return op;
+			Match(TT.At);
+			op = new ASTNode(AT.AddressOf);
 			
 		}else if(Check(TT.Pointer)){
-			auto tok = Match(TT.Pointer);
-			auto op = new ASTNode(AT.Deref);
-			op.left = ParseUnaryOp();
-			return op;
+			Match(TT.Pointer);
+			op = new ASTNode(AT.Deref);
 			
 		}else if(Check(TT.Not)){
-			auto tok = Match(TT.Not);
-			auto op = new ASTNode(AT.Not);
+			Match(TT.Not);
+			op = new ASTNode(AT.Not);
+		}
+
+		if(op){
 			op.left = ParseUnaryOp();
 			return op;
 		}
@@ -576,6 +621,7 @@ private:
 	// Conditional Statements ////////////////////////////
 
 	ASTNode* ParseConditionalStatement(){
+		auto __sd = ScopeDebug("ParseConditionalStatement");
 		Match(TT.If);
 		auto node = new ASTNode(AT.ConditionalStatement);
 		node.left = ParseCondition();
@@ -590,6 +636,7 @@ private:
 	}
 
 	ASTNode* ParseCondition(){
+		auto __sd = ScopeDebug("ParseCondition");
 		Match(TT.LeftParen);
 		auto cond = ParseExpression();
 		Match(TT.RightParen);
@@ -600,21 +647,24 @@ private:
 	// Loops /////////////////////////////////////////////
 
 	ASTNode* ParseLoop(){
+		auto __sd = ScopeDebug("ParseLoop");
 		Match(TT.For);
 		auto node = new ASTNode(AT.Loop);
 
 		if(Check(TT.LeftParen)){
-			node.left = ParseRangeSpec();
-		}
+			node.left = ParseRangeSpecifier();
+		} // else infinite loop
 
 		node.right = ParseStatement();
 
 		return node;
 	}
 
-	ASTNode* ParseRangeSpec(){
+	ASTNode* ParseRangeSpecifier(){
+		auto __sd = ScopeDebug("ParseRangeSpecifier");
 		Match(TT.LeftParen);
 
+		// Acts like a while loop
 		auto node = ParseExpression();
 
 		Match(TT.RightParen);

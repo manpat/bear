@@ -32,6 +32,11 @@ struct Token {
 		Return,
 		Comma,
 
+		// Comparison ops
+		Equals, NEquals,
+		LEquals, GEquals,
+		LessThan, GreaterThan,
+
 		Plus, Minus,
 		Star, Divide,
 
@@ -70,6 +75,11 @@ class Tokeniser {
 			(?P<LeftSquare>\[)				|
 			(?P<RightSquare>\])				|
 
+			(?P<Equals>==)					|
+			(?P<NEquals>!=)					|
+			(?P<LEquals><=)					|
+			(?P<GEquals>>=)					|
+
 			(?P<Function>\bfunc\b)			|
 			(?P<Returns>->)					|
 			(?P<Return>\breturn\b)			|
@@ -82,6 +92,8 @@ class Tokeniser {
 			(?P<Star>\*)					|
 			(?P<Divide>/)					|
 			(?P<Not>!)						|
+			(?P<LessThan><)					|
+			(?P<GreaterThan>>)				|
 
 			(?P<If>if)						|
 			(?P<Else>else)					|
@@ -237,9 +249,22 @@ private:
 			}else if(m["Divide"].length != 0){
 				tok.type = Token.Type.Divide;
 
+			}else if(m["LessThan"].length != 0){
+				tok.type = Token.Type.LessThan;
+			}else if(m["GreaterThan"].length != 0){
+				tok.type = Token.Type.GreaterThan;
+
+			}else if(m["Equals"].length != 0){
+				tok.type = Token.Type.Equals;
+			}else if(m["NEquals"].length != 0){
+				tok.type = Token.Type.NEquals;
+			}else if(m["LEquals"].length != 0){
+				tok.type = Token.Type.LEquals;
+			}else if(m["GEquals"].length != 0){
+				tok.type = Token.Type.GEquals;
+
 			}else if(m["Comma"].length != 0){
 				tok.type = Token.Type.Comma;
-
 
 			}else if(m["If"].length != 0){
 				tok.type = Token.Type.If;

@@ -62,24 +62,29 @@ Parameter -> Type
 
 Return -> 'return' Expr ';'
 
-///////// EXPRESSIONS ///////// done
+///////// EXPRESSIONS ///////// underway
 
-Expr -> BinaryOpAddPrec Tuple
-Tuple -> ',' BinaryOpAddPrec Tuple
+Expr -> ComparisonOpPrec Tuple
+Tuple -> ',' ComparisonOpPrec Tuple
 Tuple -> ə
 
-NonTupleExpr -> BinaryOpAddPrec
+NonTupleExpr -> ComparisonOpPrec
 
-// Comparison operators go here
+ComparisonOpPrec -> BinaryOpAddPrec ComparisonOpPrecR
+ComparisonOpPrecR -> '==' BinaryOpAddPrec ComparisonOpPrecR
+ComparisonOpPrecR -> '!=' BinaryOpAddPrec ComparisonOpPrecR
+ComparisonOpPrecR -> '<=' BinaryOpAddPrec ComparisonOpPrecR
+ComparisonOpPrecR -> '>=' BinaryOpAddPrec ComparisonOpPrecR
+ComparisonOpPrecR -> '<' BinaryOpAddPrec ComparisonOpPrecR
+ComparisonOpPrecR -> '>' BinaryOpAddPrec ComparisonOpPrecR
+ComparisonOpPrecR -> ə
 
 BinaryOpAddPrec -> BinaryOpMulPrec BinaryOpAddPrecR 
-
 BinaryOpAddPrecR -> '+' BinaryOpMulPrec BinaryOpAddPrecR
 BinaryOpAddPrecR -> '-' BinaryOpMulPrec BinaryOpAddPrecR
 BinaryOpAddPrecR -> ə
 
 BinaryOpMulPrec -> UnaryOp BinaryOpMulPrecR 
-
 BinaryOpMulPrecR -> '*' UnaryOp BinaryOpMulPrecR
 BinaryOpMulPrecR -> '/' UnaryOp BinaryOpMulPrecR
 BinaryOpMulPrecR -> ə
@@ -130,7 +135,7 @@ type -> string
 type -> float
 type -> double
 
-///////// Conditional Statements /////////
+///////// Conditional Statements ///////// done
 
 ConditionalStatement -> 'if' Condition Statement OptionalElseblock
 
@@ -139,11 +144,11 @@ Condition -> '(' Expr ')'
 OptionalElseblock -> 'else' Statement
 OptionalElseblock -> ə
 
-///////// Loops /////////
+///////// Loops ///////// underway
 
-Loop -> 'for' RangeSpec Statement
+Loop -> 'for' ParseRangeSpecifier Statement
 
-RangeSpec -> '(' Expr ')' // While
-RangeSpec -> '(' Statement ';' Expression ';' Expression ')' // C style for
-RangeSpec -> '(' identifier 'in' Expr ')' // Foreach
-RangeSpec -> ə // Infinite loop
+ParseRangeSpecifier -> '(' Expr ')' // While
+ParseRangeSpecifier -> '(' Statement ';' Expression ';' Expression ')' // C style for
+ParseRangeSpecifier -> '(' identifier 'in' Expr ')' // Foreach
+ParseRangeSpecifier -> ə // Infinite loop
