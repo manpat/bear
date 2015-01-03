@@ -95,17 +95,19 @@ class Tokeniser {
 			(?P<LessThan><)					|
 			(?P<GreaterThan>>)				|
 
-			(?P<If>if)						|
-			(?P<Else>else)					|
-			(?P<For>for)					|
-			(?P<In>in)						|
+			(?P<If>\bif\b)					|
+			(?P<Else>\belse\b)				|
+			(?P<For>\bfor\b)				|
+			(?P<In>\bin\b)					|
 
 			(?P<Type>
-				void|u?short|u?int|u?long|
-				float|double|u?char|
-				string|bool)				|
+				\b(?:void|u?short|u?int|
+					u?long|float|double|
+					u?char|string|
+					bool))\b				|
+		
 			(?P<LanguageConstant>
-				true|false|null)			|
+				\b(?:true|false|null)\b)	|
 
 			(?P<Comma>,)					|
 

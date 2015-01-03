@@ -1,7 +1,5 @@
 Version 1:
 	Loops
-	Conditional statements
-	Comparison operators
 
 	Structs
 	Reference Types + Const, etc...
@@ -25,7 +23,7 @@ Version 2:
 
 	Exceptions
 
-	CTFE
+	CTFE - run in interpreter
 	Metaprogramming
 		static if
 

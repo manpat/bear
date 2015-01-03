@@ -1,14 +1,14 @@
 // Comments
 
-// anInt int;
-// aPointer int^ = @anInt;
-// anotherInt int = ^aPointer;
+anInt int;
+aPointer int^ = @anInt;
+anotherInt int = ^aPointer;
 
-if(c1 != c2)
+if(1+2 != 3+4*anInt)
 	f1();
 
 else if(c2)
-	for(true) f2();
+	for(true) f2(1, 2, 3);
 	
 else
 	f3();

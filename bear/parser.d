@@ -71,9 +71,8 @@ private:
 
 	ASTNode* ParseProgram(){
 		auto __sd = ScopeDebug("ParseProgram");
-		ReadNext();
-
 		ASTNode* node = null;
+		ReadNext();
 
 		if(!Check(TT.EOF)){
 			node = ParseStatementList();
@@ -88,10 +87,9 @@ private:
 
 	ASTNode* ParseStatementList(){
 		auto __sd = ScopeDebug("ParseStatementList");
+		ASTNode* node = null;
 
 		if(Check(TT.EOF)) return null;
-
-		ASTNode* node = null;
 
 		auto first = ParseStatement();
 		if(first){
@@ -356,7 +354,7 @@ private:
 
 	ASTNode* ParseExpression(){
 		auto __sd = ScopeDebug("ParseExpression");
-		auto node = ParseComparisonOpPrecedence();
+		auto node = ParseNonTupleExpression();
 
 		node = ParseTuple(node);
 
@@ -373,7 +371,7 @@ private:
 
 			do{
 				Match(TT.Comma);
-				node.list ~= ParseComparisonOpPrecedence();
+				node.list ~= ParseNonTupleExpression();
 				
 			}while(Check(TT.Comma));
 		}
@@ -381,9 +379,8 @@ private:
 		return node;
 	}
 
-	ASTNode* ParseNonTupleExpression(){
-		return ParseComparisonOpPrecedence();
-	}
+	// Just for convenience
+	alias ParseNonTupleExpression = ParseComparisonOpPrecedence;
 
 	ASTNode* ParseComparisonOpPrecedence(){
 		auto __sd = ScopeDebug("ParseComparisonOpPrecedence");
@@ -461,6 +458,7 @@ private:
 			op.right = ParseBinOpMulPrecedence();
 			node = op;
 
+			// Left associative so recurse
 			node = ParseBinOpAddPrecedenceR(node);
 		}
 
@@ -494,6 +492,7 @@ private:
 			node = op;
 			node.right = ParseUnaryOp();
 
+			// Left associative so recurse
 			node = ParseBinOpMulPrecedenceR(node);
 		}
 
@@ -664,7 +663,7 @@ private:
 		auto __sd = ScopeDebug("ParseRangeSpecifier");
 		Match(TT.LeftParen);
 
-		// Acts like a while loop
+		// Acts like a while loop for now
 		auto node = ParseExpression();
 
 		Match(TT.RightParen);
@@ -697,7 +696,7 @@ private:
 		auto tok = Match(TT.String);
 		auto node = new ASTNode(AT.String);
 		node.literalinfo = new ASTLiteralInfo;
-		node.literalinfo.text = tok.text[1..$-1];
+		node.literalinfo.text = tok.text[1..$-1]; // strip quotation marks
 
 		return node;
 	}
