@@ -129,7 +129,8 @@ private:
 		}else if(Check(TT.If)){
 			node = ParseConditionalStatement();
 
-		}else if(Check(TT.For)){
+		}else if(Check(TT.For) || Check(TT.While)
+			|| Check(TT.Do) || Check(TT.Foreach)){ // foreach is v2
 			node = ParseLoop();
 
 		}else{
@@ -647,27 +648,78 @@ private:
 
 	ASTNode* ParseLoop(){
 		auto __sd = ScopeDebug("ParseLoop");
-		Match(TT.For);
+		ASTNode* node = null;
+		
+		if(Check(TT.For)){
+			node = ParseForLoop();
+
+		}else if(Check(TT.While)){
+			node = ParseWhileLoop();
+
+		}else if(Check(TT.Do)){
+			node = ParseDoLoop();
+
+		}else if(Check(TT.Foreach)){
+			node = ParseForeachLoop();
+
+		}else{
+			Error("Tried to parse a loop that wasn't a loop " ~ next.text);
+		}
+
+		return node;
+	}
+
+	ASTNode* ParseForLoop(){
+		auto __sd = ScopeDebug("ParseForLoop");
 		auto node = new ASTNode(AT.Loop);
+		Match(TT.For);
 
 		if(Check(TT.LeftParen)){
-			node.left = ParseRangeSpecifier();
-		} // else infinite loop
+			Match(TT.LeftParen);
+			//node.left = ParseExpression();
+			InternalError("I don't know how to parse for loops");
+			Match(TT.RightParen);
+		}
 
 		node.right = ParseStatement();
 
 		return node;
 	}
 
-	ASTNode* ParseRangeSpecifier(){
-		auto __sd = ScopeDebug("ParseRangeSpecifier");
+	ASTNode* ParseWhileLoop(){
+		auto __sd = ScopeDebug("ParseWhileLoop");
+		auto node = new ASTNode(AT.Loop);
+		Match(TT.While);
 		Match(TT.LeftParen);
-
-		// Acts like a while loop for now
-		auto node = ParseExpression();
-
+		node.left = ParseExpression();
 		Match(TT.RightParen);
+
+		node.right = ParseStatement();
+
 		return node;
+	}
+
+	ASTNode* ParseDoLoop(){
+		auto __sd = ScopeDebug("ParseDoLoop");
+		auto node = new ASTNode(AT.Loop);
+		Match(TT.Do);
+		node.right = ParseStatement();
+		Match(TT.While);
+		Match(TT.LeftParen);
+		node.left = ParseExpression();
+		Match(TT.RightParen);
+		Match(TT.SemiColon);
+
+		return node;
+	}
+
+	ASTNode* ParseForeachLoop(){
+		auto __sd = ScopeDebug("ParseForeachLoop");
+		auto node = new ASTNode(AT.Loop);
+		Match(TT.Foreach);
+
+		Error("foreach is v2 feature");
+		return null;
 	}
 
 	// Terminals /////////////////////////////////////////

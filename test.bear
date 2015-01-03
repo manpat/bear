@@ -1,17 +1,20 @@
 // Comments
 
-anInt int;
-aPointer int^ = @anInt;
-anotherInt int = ^aPointer;
+// anInt int;
+// aPointer int^ = @anInt;
+// anotherInt int = ^aPointer;
 
-if(1+2 != 3+4*anInt)
+if(1+2 != 3+4*anInt){
 	f1();
 
-else if(c2)
-	for(true) f2(1, 2, 3);
-	
-else
+}else if(c2){
+	for f2(1, 2, 3);
+	while(!c3) f2(4, 5, 6);
+	do f2(7, 8, 9); while(false);
+
+}else{
 	f3();
+}
 
 
 // aShort short = 1;
@@ -33,11 +36,13 @@ else
 // 	return ^arg1;
 // }
 
-// func thing(arg1 int^, arg2 uint[4]) -> uint[]{
-// 	arg2[0] = ^arg1;
-// 	^arg1 = arg2[1];
-// 	return arg1;
-// }
+// // func thing(arg1 int^, arg2 uint[4]) -> uint[]{
+// // 	arg2[0] = ^arg1;
+// // 	^arg1 = arg2[1]; 	// Error because lvalues
+// 						// can only be either an identifier
+// 						// or array subscripts
+// // 	return arg1;
+// // }
 
 // // Parenthesis optional
 // func main { 

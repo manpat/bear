@@ -44,8 +44,10 @@ struct Token {
 		Assign,
 
 		If, Else,
-		For, 
-		In, // Ver 2
+		For, While,
+		Do, 
+
+		Foreach, In, // Ver 2
 	}
 	
 	Type type;
@@ -97,15 +99,19 @@ class Tokeniser {
 
 			(?P<If>\bif\b)					|
 			(?P<Else>\belse\b)				|
+
 			(?P<For>\bfor\b)				|
+			(?P<While>\bwhile\b)			|
+			(?P<Do>\bdo\b)					|
 			(?P<In>\bin\b)					|
+			(?P<Foreach>\bforeach\b)		|
 
 			(?P<Type>
 				\b(?:void|u?short|u?int|
 					u?long|float|double|
 					u?char|string|
 					bool))\b				|
-		
+
 			(?P<LanguageConstant>
 				\b(?:true|false|null)\b)	|
 
@@ -272,8 +278,16 @@ private:
 				tok.type = Token.Type.If;
 			}else if(m["Else"].length != 0){
 				tok.type = Token.Type.Else;
+
 			}else if(m["For"].length != 0){
 				tok.type = Token.Type.For;
+			}else if(m["While"].length != 0){
+				tok.type = Token.Type.While;
+			}else if(m["Do"].length != 0){
+				tok.type = Token.Type.Do;
+				
+			}else if(m["Foreach"].length != 0){
+				tok.type = Token.Type.Foreach;
 			}else if(m["In"].length != 0){
 				tok.type = Token.Type.In;
 

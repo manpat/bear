@@ -146,9 +146,11 @@ OptionalElseblock -> ə
 
 ///////// Loops ///////// underway
 
-Loop -> 'for' ParseRangeSpecifier Statement
+Loop -> 'for' '(' Statement ';' Expression ';' Expression ')' Statement // C style for
+Loop -> 'for' Statement // infinite loop // TODO: rename to something catchy maybe
 
-ParseRangeSpecifier -> '(' Expr ')' // While
-ParseRangeSpecifier -> '(' Statement ';' Expression ';' Expression ')' // C style for
-ParseRangeSpecifier -> '(' identifier 'in' Expr ')' // Foreach
-ParseRangeSpecifier -> ə // Infinite loop
+Loop -> 'while' '(' Expr ')' Statement // c style while
+Loop -> 'do' Statement 'while' '(' Expr ')' ';' // c style do while (maybe find a new way)
+
+// V2 but may as well define now
+Loop -> 'foreach' '(' identifier 'in' Expr ')' Statement // C# like (as much as I don't want that)
