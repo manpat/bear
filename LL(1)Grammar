@@ -71,12 +71,12 @@ Tuple -> ə
 NonTupleExpr -> ComparisonOpPrec
 
 ComparisonOpPrec -> BinaryOpAddPrec ComparisonOpPrecR
-ComparisonOpPrecR -> '==' BinaryOpAddPrec ComparisonOpPrecR
-ComparisonOpPrecR -> '!=' BinaryOpAddPrec ComparisonOpPrecR
-ComparisonOpPrecR -> '<=' BinaryOpAddPrec ComparisonOpPrecR
-ComparisonOpPrecR -> '>=' BinaryOpAddPrec ComparisonOpPrecR
-ComparisonOpPrecR -> '<' BinaryOpAddPrec ComparisonOpPrecR
-ComparisonOpPrecR -> '>' BinaryOpAddPrec ComparisonOpPrecR
+ComparisonOpPrecR -> '==' BinaryOpAddPrec
+ComparisonOpPrecR -> '!=' BinaryOpAddPrec
+ComparisonOpPrecR -> '<=' BinaryOpAddPrec
+ComparisonOpPrecR -> '>=' BinaryOpAddPrec
+ComparisonOpPrecR -> '<' BinaryOpAddPrec
+ComparisonOpPrecR -> '>' BinaryOpAddPrec
 ComparisonOpPrecR -> ə
 
 BinaryOpAddPrec -> BinaryOpMulPrec BinaryOpAddPrecR 
