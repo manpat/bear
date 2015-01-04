@@ -89,6 +89,8 @@ BinaryOpMulPrecR -> '*' UnaryOp BinaryOpMulPrecR
 BinaryOpMulPrecR -> '/' UnaryOp BinaryOpMulPrecR
 BinaryOpMulPrecR -> ə
 
+UnaryOp -> '++' UnaryOp
+UnaryOp -> '--' UnaryOp
 UnaryOp -> '-' UnaryOp
 UnaryOp -> '@' UnaryOp // Address of
 UnaryOp -> '^' UnaryOp // Deref

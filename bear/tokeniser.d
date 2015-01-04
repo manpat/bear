@@ -40,6 +40,8 @@ struct Token {
 		Plus, Minus,
 		Star, Divide,
 
+		Increment, Decrement,
+
 		Not,
 		Assign,
 
@@ -89,6 +91,8 @@ class Tokeniser {
 			(?P<At>@)						|
 			(?P<Assign>=)					|
 
+			(?P<Increment>\+\+)				|
+			(?P<Decrement>--)				|
 			(?P<Plus>\+)					|
 			(?P<Minus>-)					|
 			(?P<Star>\*)					|
@@ -256,6 +260,11 @@ private:
 				tok.type = Token.Type.Star;
 			}else if(m["Divide"].length != 0){
 				tok.type = Token.Type.Divide;
+
+			}else if(m["Increment"].length != 0){
+				tok.type = Token.Type.Increment;
+			}else if(m["Decrement"].length != 0){
+				tok.type = Token.Type.Decrement;
 
 			}else if(m["LessThan"].length != 0){
 				tok.type = Token.Type.LessThan;

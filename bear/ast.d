@@ -32,11 +32,15 @@ struct ASTNode {
 		Negate,	Deref, 
 		AddressOf, Not,
 
+		PreIncrement, PreDecrement,
+		PostIncrement, PostDecrement,
+
 		ReturnStatement, // left = expr
 		ArraySubscript, // left = ident, right = expr
 
 		ConditionalStatement, // left = expr, right = statement, third = statement
 		Loop, // left = expr or null, right = statement
+		PostLoop, // left = expr or null, right = statement
 
 		Identifier, // name
 		Type, // typeinfo

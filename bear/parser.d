@@ -519,6 +519,14 @@ private:
 		}else if(Check(TT.Not)){
 			Match(TT.Not);
 			op = new ASTNode(AT.Not);
+
+		}else if(Check(TT.Increment)){
+			Match(TT.Increment);
+			op = new ASTNode(AT.PreIncrement);
+
+		}else if(Check(TT.Decrement)){
+			Match(TT.Decrement);
+			op = new ASTNode(AT.PreDecrement);
 		}
 
 		if(op){
@@ -701,7 +709,7 @@ private:
 
 	ASTNode* ParseDoLoop(){
 		auto __sd = ScopeDebug("ParseDoLoop");
-		auto node = new ASTNode(AT.Loop);
+		auto node = new ASTNode(AT.PostLoop);
 		Match(TT.Do);
 		node.right = ParseStatement();
 		Match(TT.While);

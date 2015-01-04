@@ -21,5 +21,22 @@ func main {
 	// This is where things go
 	anInt = ^aFunctionWithNoParameters();
 	/* more comments */
+
+	if(anInt > 314){
+		// ...
+	}else{
+		// ...
+	}
+
+	for somethingToDoForever();
+	for(i int; i < 10; ++i) somethingToDo10Times();
+	while(cond) somethingToDoWhileCondIsTrue();
+	do aLoopWithAPostCondition(); while(postCondition);
+
+	if(a)
+		if(b) aThing();
+		else someOtherThing(); // elses bind to the nearest unbound if
+
+	else yetAnotherThing();
 }
 ```
