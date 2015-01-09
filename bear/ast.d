@@ -10,8 +10,8 @@ struct ASTNode {
 		Assignment, // left = ident or subscript, right = expr
 		Declaration, // left = ident, right = expr
 
-		FunctionDeclaration, // left = ident, functioninfo
-		FunctionDefinition, // left = ident, right = block, functioninfo
+		FunctionDeclaration, // left = ident, typeinfo
+		FunctionDefinition, // left = ident, right = block, typeinfo
 		FunctionCall, // left = ident, right = arg list
 		FunctionArgumentList, // list = [nontuple expr*]
 		FunctionParameterList, // list = [funcparameter*]
@@ -61,7 +61,6 @@ struct ASTNode {
 	char[] name = null;
 	ASTTypeInfo* typeinfo = null;
 	ASTLiteralInfo* literalinfo = null;
-	ASTFunctionInfo* functioninfo = null;
 	ASTLoopInfo* loopinfo = null;
 	ASTIfInfo* ifinfo = null;
 
@@ -139,6 +138,7 @@ struct ASTTypeInfo {
 		PointerType pointerType;
 		ArrayType arrayType;
 		PointerType dynArrayType; // Pointer type because they're identical anyway
+		FunctionType functionType;
 	}
 
 	struct NumberType {
@@ -156,6 +156,11 @@ struct ASTTypeInfo {
 	struct ArrayType {
 		ASTTypeInfo* pointedType;
 		ASTNode* numOfElementsExpr;
+	}
+
+	struct FunctionType {
+		ASTNode* parameterList;
+		ASTTypeInfo* returnType;
 	}
 
 	string toString(){
@@ -177,17 +182,7 @@ struct ASTLiteralInfo {
 	char[] text;
 }
 
-struct ASTFunctionInfo {
-	ASTNode* parameterList;
-	ASTNode* returnType;
-}
-
-//enum ASTLoopType {
-//	For, While, Do, Foreach,
-//}
-
 struct ASTLoopInfo {
-	//ASTLoopType type;
 	char[] label = null;
 
 	ASTNode* initStmt = null; // for, foreach (under the hood)

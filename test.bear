@@ -1,35 +1,5 @@
 // Comments
 
-// anInt int^;
-// aPointer int^ = @anInt;
-// anotherInt int = ^aPointer;
-
-aBigFloat extended = 1.0;
-
-if(1+2 != 3+4*anInt){
-	f1();
-
-}else if(c2){
-	for(i int = 0; i < 10; ++i) f1();
-	for f2(1, 2, 3);
-	while(--anInt > 0) f2(4, 5, 6);
-	do f2(7, 8, 9); while(false);
-
-}else{
-	f3();
-}
-
-// aShort short = 1;
-// anExpression long = (aShort = 2), 1 + -aShort * 3 * (4 + 5);
-
-// {
-// 	aString string;
-// 	aString = "I am a string";
-// 	{
-// 		aCharPointerArray uchar^[] = "things";	
-// 	}
-// }
-
 // aFunctionCall(thing1, 1234, "strings fo' days");
 
 // func aFunctionDecl();
@@ -46,7 +16,42 @@ if(1+2 != 3+4*anInt){
 // // 	return arg1;
 // // }
 
-// // Parenthesis optional
-// func main { 
-// 	thing();
-// }
+anInt int;
+aLong long;
+aLongNamedThing Thing;
+aLongNamedThing2 Thing;
+
+// Parenthesis optional
+func main { 
+	anInt int^;
+	aPointer int^ = @anInt;
+	anotherInt int = ^aPointer;
+
+	aBigFloat extended = 1.0;
+
+	if(1+2 != 3+4*anInt){
+		f1();
+
+	}else if(c2){
+		for(i int = 0; i < 10; ++i) f1();
+		for f2(1, 2, 3);
+		while(--anInt > 0) f2(4, 5, 6);
+		do f2(7, 8, 9); while(false);
+
+	}else{
+		f3();
+	}
+
+	// aShort short = 1;
+	// anExpression long = (aShort = 2), 1 + -aShort * 3 * (4 + 5);
+
+	// {
+	// 	aString string;
+	// 	aString = "I am a string";
+	// 	{
+	// 		aCharPointerArray uchar^[] = "things";	
+	// 	}
+	// }
+
+	thing();
+}

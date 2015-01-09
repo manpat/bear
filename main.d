@@ -21,9 +21,13 @@ void main(){
 
 		writeln("Syntactic analysis done\n");
 		writeln(ast.toString);
+		stdout.flush();
+
+		auto analyser = new Analyser();
+		analyser.Analyse(ast);
 
 	}catch(std.exception.Exception e){
 		writeln("\n");
-		writeln("error: ", e);
+		writeln("error: ", e.msg);
 	}
 }

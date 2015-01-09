@@ -47,35 +47,3 @@ neg ecx
 imul ecx, 4
 
 add eax, ecx
-
-
-; evaluate(node, reg)
-;	if !trivial(node.lhs) then
-;		evaluate(node.lhs, eax)
-;		if !trivial(node.rhs) then
-;			push eax
-;		end
-;	end
-; 	
-;	if !trivial(node.rhs) then
-;		evaluate(node.rhs, ecx)
-;		if !trivial(node.lhs) then
-;			xchg eax, ecx
-;			pop eax
-;		end
-;	end
-;
-;	if trivial(node.lhs) then
-;		mov eax, node.lhs.lhs
-;		node.lhs.op eax, node.lhs.rhs
-;	end
-;
-;	if trivial(node.rhs) then
-;		mov ecx, node.rhs.lhs
-;		node.rhs.op ecx, node.rhs.rhs
-;	end
-;
-; 	node.op eax, ecx
-; 
-; 
-; 

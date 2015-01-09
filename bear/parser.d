@@ -265,12 +265,15 @@ private:
 		Match(TT.Function);
 
 		auto node = new ASTNode(AT.FunctionDeclaration);
-		node.functioninfo = new ASTFunctionInfo;
+		auto typeinfo = new ASTTypeInfo(ASTPrimitiveType.Function);
 
 		node.left = ParseIdentifier(); // Remove for lambdas?
 
-		node.functioninfo.parameterList = ParseFuncDeclParam();
-		node.functioninfo.returnType = ParseFuncDeclType();
+		typeinfo.functionType.parameterList = ParseFuncDeclParam();
+
+		auto returnType = ParseFuncDeclType();
+		if(returnType)
+			typeinfo.functionType.returnType = returnType.typeinfo;
 
 		if(Check(TT.LeftBrace)){
 			node.type = AT.FunctionDefinition;
@@ -278,6 +281,8 @@ private:
 		}else{
 			Match(TT.SemiColon);
 		}
+
+		node.typeinfo = typeinfo;
 
 		return node;
 	}
@@ -337,7 +342,7 @@ private:
 			param.left = ParseIdentifier();
 		}
 
-		param.right = ParseType();
+		param.typeinfo = ParseType().typeinfo;
 
 		return param;
 	}
