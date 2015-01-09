@@ -113,6 +113,7 @@ class Tokeniser {
 			(?P<Type>
 				\b(?:void|u?short|u?int|
 					u?long|float|double|
+					extended|
 					u?char|string|
 					bool))\b				|
 
@@ -122,7 +123,8 @@ class Tokeniser {
 			(?P<Comma>,)					|
 
 			(?P<Identifier>[a-zA-Z_]\w*)	|
-			(?P<Number>[0-9][0-9_]*)		|
+			(?P<Number>[0-9][0-9_]*
+				(?:\.[0-9][0-9_]*)?)		|
 
 			(?P<SomethingElse>.)
 			`, "xsm");

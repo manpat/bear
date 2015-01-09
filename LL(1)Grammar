@@ -14,8 +14,8 @@ Statement -> Block
 Statement -> ConditionalStatement
 Statement -> Loop
 
-Statement -> 'break' ';'
-Statement -> 'continue' ';' // Add a way to specify which loop to continue
+Statement -> 'break' [identifier] ';'
+Statement -> 'continue' [identifier] ';' // Add a way to specify which loop to continue
 
 ///////// DeclAssignOrFuncCall ///////// done
 
@@ -136,6 +136,9 @@ type -> string
 
 type -> float
 type -> double
+type -> extended // 80-bit
+
+// Complex types?
 
 ///////// Conditional Statements ///////// done
 
@@ -148,11 +151,11 @@ OptionalElseblock -> ə
 
 ///////// Loops ///////// underway
 
-Loop -> 'for' '(' Statement ';' Expression ';' Expression ')' Statement // C style for
-Loop -> 'for' Statement // infinite loop // TODO: rename to something catchy maybe
+Loop -> 'for' '(' Statement ';' Expression ';' Expression ')' [identifier] Statement // C style for
+Loop -> 'for' [identifier] Statement // infinite loop // TODO: rename to something catchy maybe
 
-Loop -> 'while' '(' Expr ')' Statement // c style while
-Loop -> 'do' Statement 'while' '(' Expr ')' ';' // c style do while (maybe find a new way)
+Loop -> 'while' '(' Expr ')' [identifier] Statement // c style while
+Loop -> 'do' [identifier] Statement 'while' '(' Expr ')' ';' // c style do while (maybe find a new way)
 
 // V2 but may as well define now
-Loop -> 'foreach' '(' identifier 'in' Expr ')' Statement // C# like (as much as I don't want that)
+Loop -> 'foreach' '(' identifier 'in' Expr ')' [identifier] Statement // C# like (as much as I don't want that)

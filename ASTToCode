@@ -1,0 +1,81 @@
+; 1 + 2 * 3
+mov ecx, 2
+imul ecx, 3
+mov eax, 1
+add eax, ecx
+
+; (1 * 2) + (3 * 4)
+mov eax, 1
+imul eax, 2
+
+mov ecx, 3
+imul ecx, 4
+add eax, ecx
+
+; ((1 + 2) * 3) + ((4 - 5) * (6 * (7 + 8)))
+mov eax, 1
+add eax, 2
+imul eax, 3
+push eax ; lhs done, rhs non-trivial so push
+
+mov eax, 4
+sub eax, 5
+push eax ; lhs done, rhs non-trivial so push
+
+mov ecx, 7
+add ecx, 8
+; rhs done
+
+mov eax, 6
+imul eax, ecx
+xchg eax, ecx ; rhs done, swap lhs and rhs. result in ecx because is rhs
+
+pop eax ; pop (4 - 5)
+imul eax, ecx
+xchg eax, ecx ; rhs done, swap lhs and rhs. result in ecx because is rhs
+
+pop eax ; pop ((1+2)*3)
+add eax, ecx ; done
+
+; unary is trivial?
+; 1 * 2 + -3 * 4
+mov eax, 1
+imul eax, 2
+
+mov ecx, 3
+neg ecx
+imul ecx, 4
+
+add eax, ecx
+
+
+; evaluate(node, reg)
+;	if !trivial(node.lhs) then
+;		evaluate(node.lhs, eax)
+;		if !trivial(node.rhs) then
+;			push eax
+;		end
+;	end
+; 	
+;	if !trivial(node.rhs) then
+;		evaluate(node.rhs, ecx)
+;		if !trivial(node.lhs) then
+;			xchg eax, ecx
+;			pop eax
+;		end
+;	end
+;
+;	if trivial(node.lhs) then
+;		mov eax, node.lhs.lhs
+;		node.lhs.op eax, node.lhs.rhs
+;	end
+;
+;	if trivial(node.rhs) then
+;		mov ecx, node.rhs.lhs
+;		node.rhs.op ecx, node.rhs.rhs
+;	end
+;
+; 	node.op eax, ecx
+; 
+; 
+; 

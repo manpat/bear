@@ -65,6 +65,14 @@ private:
 		return next.type == type;
 	}
 
+	Token* Accept(TT type){
+		if(Check(type)){
+			return Match(type); 
+		}
+
+		return null;
+	}
+
 	//////////////////////////////////////////////////////
 
 	// Start /////////////////////////////////////////////
@@ -170,7 +178,6 @@ private:
 			if(assign){
 				if(!node) node = new ASTNode(AT.Assignment);
 				node.right = assign;
-
 			}
 
 			if(!node){
@@ -187,7 +194,7 @@ private:
 	ASTNode* ParseOptionalType(){
 		auto __sd = ScopeDebug("ParseOptionalType");
 
-		if(Check(TT.Type)){
+		if(Check(TT.Type) || Check(TT.Identifier)){
 			return ParseType();
 		}
 
@@ -213,10 +220,8 @@ private:
 
 	ASTNode* ParseBlock(){
 		auto __sd = ScopeDebug("ParseBlock");
-		ASTNode* node;
-
 		Match(TT.LeftBrace);
-		node = ParseStatementList();
+		auto node = ParseStatementList();
 		Match(TT.RightBrace);
 
 		return node;
@@ -243,8 +248,7 @@ private:
 			auto node = new ASTNode(AT.FunctionArgumentList);
 			node.list ~= ParseNonTupleExpression();
 
-			while(Check(TT.Comma)){
-				Match(TT.Comma);
+			while(Accept(TT.Comma)){
 				node.list ~= ParseNonTupleExpression();
 			}
 
@@ -282,8 +286,7 @@ private:
 		auto __sd = ScopeDebug("ParseFuncDeclParam");
 		ASTNode* node = null;
 
-		if(Check(TT.LeftParen)){
-			Match(TT.LeftParen);
+		if(Accept(TT.LeftParen)){
 			node = ParseParameterList();
 			Match(TT.RightParen);
 		}
@@ -294,8 +297,7 @@ private:
 	ASTNode* ParseFuncDeclType(){
 		auto __sd = ScopeDebug("ParseFuncDeclType");
 
-		if(Check(TT.Returns)){
-			Match(TT.Returns);
+		if(Accept(TT.Returns)){
 			return ParseType();
 		}
 
@@ -396,28 +398,22 @@ private:
 		auto __sd = ScopeDebug("ParseComparisonOpPrecedenceR");
 		ASTNode* op = null;
 
-		if(Check(TT.Equals)){
-			Match(TT.Equals);
+		if(Accept(TT.Equals)){
 			op = new ASTNode(AT.Equals);
 
-		}else if(Check(TT.NEquals)){
-			Match(TT.NEquals);
+		}else if(Accept(TT.NEquals)){
 			op = new ASTNode(AT.NEquals);
 
-		}else if(Check(TT.LEquals)){
-			Match(TT.LEquals);
+		}else if(Accept(TT.LEquals)){
 			op = new ASTNode(AT.LEquals);
 
-		}else if(Check(TT.GEquals)){
-			Match(TT.GEquals);
+		}else if(Accept(TT.GEquals)){
 			op = new ASTNode(AT.GEquals);
 
-		}else if(Check(TT.LessThan)){
-			Match(TT.LessThan);
+		}else if(Accept(TT.LessThan)){
 			op = new ASTNode(AT.LessThan);
 
-		}else if(Check(TT.GreaterThan)){
-			Match(TT.GreaterThan);
+		}else if(Accept(TT.GreaterThan)){
 			op = new ASTNode(AT.GreaterThan);
 		}
 
@@ -445,12 +441,10 @@ private:
 		auto __sd = ScopeDebug("ParseBinOpAddPrecedenceR");
 		ASTNode* op = null;
 
-		if(Check(TT.Plus)){
-			Match(TT.Plus);
+		if(Accept(TT.Plus)){
 			op = new ASTNode(AT.Plus);
 
-		}else if(Check(TT.Minus)){
-			Match(TT.Minus);
+		}else if(Accept(TT.Minus)){
 			op = new ASTNode(AT.Minus);
 		}
 
@@ -479,12 +473,10 @@ private:
 		auto __sd = ScopeDebug("ParseBinOpMulPrecedenceR");
 		ASTNode* op = null;
 
-		if(Check(TT.Star)){
-			Match(TT.Star);
+		if(Accept(TT.Star)){
 			op = new ASTNode(AT.Times);
 
-		}else if(Check(TT.Divide)){
-			Match(TT.Divide);
+		}else if(Accept(TT.Divide)){
 			op = new ASTNode(AT.Divide);
 		}
 
@@ -504,28 +496,22 @@ private:
 		auto __sd = ScopeDebug("ParseUnaryOp");
 		ASTNode* op = null;
 
-		if(Check(TT.Minus)){
-			Match(TT.Minus);
+		if(Accept(TT.Minus)){
 			op = new ASTNode(AT.Negate);
 
-		}else if(Check(TT.At)){
-			Match(TT.At);
+		}else if(Accept(TT.At)){
 			op = new ASTNode(AT.AddressOf);
 			
-		}else if(Check(TT.Pointer)){
-			Match(TT.Pointer);
+		}else if(Accept(TT.Pointer)){
 			op = new ASTNode(AT.Deref);
 			
-		}else if(Check(TT.Not)){
-			Match(TT.Not);
+		}else if(Accept(TT.Not)){
 			op = new ASTNode(AT.Not);
 
-		}else if(Check(TT.Increment)){
-			Match(TT.Increment);
+		}else if(Accept(TT.Increment)){
 			op = new ASTNode(AT.PreIncrement);
 
-		}else if(Check(TT.Decrement)){
-			Match(TT.Decrement);
+		}else if(Accept(TT.Decrement)){
 			op = new ASTNode(AT.PreDecrement);
 		}
 
@@ -541,8 +527,7 @@ private:
 		auto __sd = ScopeDebug("ParseExpressionTerm");
 		ASTNode* node = null;
 
-		if(Check(TT.LeftParen)){
-			Match(TT.LeftParen);
+		if(Accept(TT.LeftParen)){
 			node = ParseExpression();
 			Match(TT.RightParen);
 
@@ -595,21 +580,27 @@ private:
 	ASTNode* ParseTypeModifiers(ASTNode* base){
 		auto __sd = ScopeDebug("ParseTypeModifiers");
 
-		if(Check(TT.Pointer)){
-			Match(TT.Pointer);
-			base.typeinfo.pointerLevel++;
+		if(Accept(TT.Pointer)){
+			auto typeinfo = new ASTTypeInfo(ASTPrimitiveType.Pointer);
+			typeinfo.pointerType.pointedType = base.typeinfo;
+			base.typeinfo = typeinfo;
 
 			base = ParseTypeModifiers(base);
-		}else if(Check(TT.LeftSquare)){
-			Match(TT.LeftSquare);
+		}else if(Accept(TT.LeftSquare)){
+			auto typeinfo = new ASTTypeInfo;
 
 			if(!Check(TT.RightSquare)){
-				auto subscript = ParseExpression();
-				destroy(subscript);
-				// TODO: something here /////////////////////////
+				typeinfo.type = ASTPrimitiveType.Array;
+				typeinfo.arrayType.numOfElementsExpr = ParseExpression();
+			}else{
+				typeinfo.type = ASTPrimitiveType.DynamicArray;
 			}
 
+			typeinfo.arrayType.pointedType = base.typeinfo;
+			base.typeinfo = typeinfo;
 			Match(TT.RightSquare);
+
+			base = ParseTypeModifiers(base);
 		}
 
 		return base;
@@ -617,11 +608,43 @@ private:
 	
 	ASTNode* ParseBaseType(){
 		auto __sd = ScopeDebug("ParseBaseType");
-		auto tok = Match(TT.Type);
-		auto node = new ASTNode(AT.Type);
-		node.typeinfo = new ASTTypeInfo;
+		auto tok = Accept(TT.Identifier);
+		if(!tok){
+			tok = Match(TT.Type);
+		}
 
-		// TODO: actually do type stuff /////////////////////////
+		auto base = tok.text;
+		auto node = new ASTNode(AT.Type);
+		auto typeinfo = new ASTTypeInfo;
+
+		if(base[0] == 'u'){
+			import std.algorithm : canFind;
+			if(canFind(["short", "int", "long", "char"], base[1..$])){
+				typeinfo.numberType.isUnsigned = true;
+				base = base[1..$];
+			}
+		}
+
+		switch(base){
+			case "void": typeinfo.type = ASTPrimitiveType.Void; break;
+			case "short": typeinfo.type = ASTPrimitiveType.Short; break;
+			case "int": typeinfo.type = ASTPrimitiveType.Int; break;
+			case "long": typeinfo.type = ASTPrimitiveType.Long; break;
+			case "char": typeinfo.type = ASTPrimitiveType.Character; break;
+			case "bool": typeinfo.type = ASTPrimitiveType.Bool; break;
+			case "float": typeinfo.type = ASTPrimitiveType.Float; break;
+			case "double": typeinfo.type = ASTPrimitiveType.Double; break;
+			case "extended": typeinfo.type = ASTPrimitiveType.Extended; break;
+			case "string": typeinfo.type = ASTPrimitiveType.String; break;
+			// Function ptrs need to go here somewhere
+
+			default: // classes/structs/typedefs
+				typeinfo.type = ASTPrimitiveType.Custom;
+				typeinfo.userType.name = base;
+				break;
+		}
+
+		node.typeinfo = typeinfo;
 
 		return node;
 	}
@@ -632,13 +655,15 @@ private:
 		auto __sd = ScopeDebug("ParseConditionalStatement");
 		Match(TT.If);
 		auto node = new ASTNode(AT.ConditionalStatement);
-		node.left = ParseCondition();
-		node.right = ParseStatement();
+		auto ifinfo = new ASTIfInfo;
+		ifinfo.condition = ParseCondition();
+		ifinfo.truePath = ParseStatement();
 
-		if(Check(TT.Else)){
-			Match(TT.Else);
-			node.third = ParseStatement();
+		if(Accept(TT.Else)){
+			ifinfo.falsePath = ParseStatement();
 		}
+
+		node.ifinfo = ifinfo;
 
 		return node;
 	}
@@ -680,53 +705,86 @@ private:
 	ASTNode* ParseForLoop(){
 		auto __sd = ScopeDebug("ParseForLoop");
 		auto node = new ASTNode(AT.Loop);
+		auto loopinfo = new ASTLoopInfo;
 		Match(TT.For);
 
-		if(Check(TT.LeftParen)){
-			Match(TT.LeftParen);
-			//node.left = ParseExpression();
-			InternalError("I don't know how to parse for loops");
+		if(Accept(TT.LeftParen)){
+			loopinfo.initStmt = ParseStatement(); // TODO: make this declaration only, maybe
+			// assume semicolon
+			loopinfo.condition = ParseExpression();
+			Match(TT.SemiColon);
+			loopinfo.postStmt = ParseExpression();
+
 			Match(TT.RightParen);
 		}
 
-		node.right = ParseStatement();
+		if(Check(TT.Identifier)){
+			loopinfo.label = ParseLoopLabel();
+		}
 
+		node.left = ParseStatement();
+
+		node.loopinfo = loopinfo;
 		return node;
 	}
 
 	ASTNode* ParseWhileLoop(){
 		auto __sd = ScopeDebug("ParseWhileLoop");
 		auto node = new ASTNode(AT.Loop);
+		auto loopinfo = new ASTLoopInfo;
 		Match(TT.While);
 		Match(TT.LeftParen);
-		node.left = ParseExpression();
+		loopinfo.condition = ParseExpression();
 		Match(TT.RightParen);
 
-		node.right = ParseStatement();
+		if(Check(TT.Identifier)){
+			loopinfo.label = ParseLoopLabel();
+		}
 
+		node.left = ParseStatement();
+
+		node.loopinfo = loopinfo;
 		return node;
 	}
 
 	ASTNode* ParseDoLoop(){
 		auto __sd = ScopeDebug("ParseDoLoop");
-		auto node = new ASTNode(AT.PostLoop);
+		auto node = new ASTNode(AT.Loop);
+		auto loopinfo = new ASTLoopInfo;
+		loopinfo.isPostCondition = true;
+
 		Match(TT.Do);
-		node.right = ParseStatement();
+
+		if(Check(TT.Identifier)){
+			loopinfo.label = ParseLoopLabel();
+		}
+
+		node.left = ParseStatement();
 		Match(TT.While);
 		Match(TT.LeftParen);
-		node.left = ParseExpression();
+		loopinfo.condition = ParseExpression();
 		Match(TT.RightParen);
 		Match(TT.SemiColon);
 
+		node.loopinfo = loopinfo;
 		return node;
 	}
 
 	ASTNode* ParseForeachLoop(){
 		auto __sd = ScopeDebug("ParseForeachLoop");
 		auto node = new ASTNode(AT.Loop);
+		auto loopinfo = new ASTLoopInfo;
 		Match(TT.Foreach);
 
 		Error("foreach is v2 feature");
+		node.loopinfo = loopinfo;
+		return node;
+	}
+
+	// Causes errors
+	char[] ParseLoopLabel(){
+		//auto tok = Match(TT.Identifier);
+
 		return null;
 	}
 

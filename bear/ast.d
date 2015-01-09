@@ -1,6 +1,6 @@
 module bear.ast;
 
-import std.stdio, std.conv;
+import std.conv;
 
 struct ASTNode {
 	enum NodeType {
@@ -32,15 +32,15 @@ struct ASTNode {
 		Negate,	Deref, 
 		AddressOf, Not,
 
+		// left = expr
 		PreIncrement, PreDecrement,
 		PostIncrement, PostDecrement,
 
 		ReturnStatement, // left = expr
 		ArraySubscript, // left = ident, right = expr
 
-		ConditionalStatement, // left = expr, right = statement, third = statement
+		ConditionalStatement, // ifinfo
 		Loop, // left = expr or null, right = statement
-		PostLoop, // left = expr or null, right = statement
 
 		Identifier, // name
 		Type, // typeinfo
@@ -55,7 +55,6 @@ struct ASTNode {
 	NodeType type;
 	ASTNode* left = null;
 	ASTNode* right = null;
-	ASTNode* third = null;
 
 	ASTNode*[] list = null;
 
@@ -63,6 +62,8 @@ struct ASTNode {
 	ASTTypeInfo* typeinfo = null;
 	ASTLiteralInfo* literalinfo = null;
 	ASTFunctionInfo* functioninfo = null;
+	ASTLoopInfo* loopinfo = null;
+	ASTIfInfo* ifinfo = null;
 
 	this(NodeType _type){
 		type = _type;
@@ -79,6 +80,10 @@ struct ASTNode {
 
 		string s = "(" ~ to!string(type);
 
+		if(typeinfo){
+			s ~= " <" ~ to!string(typeinfo.type) ~ ">";
+		}
+
 		if(left){
 			s ~= " " ~ left.toString;
 		}
@@ -87,9 +92,6 @@ struct ASTNode {
 				s ~= "\n";
 			}
 			s ~= " " ~ right.toString;
-		}
-		if(third){
-			s ~= " " ~ third.toString;
 		}
 
 		if(list){
@@ -107,22 +109,54 @@ struct ASTNode {
 	}
 }
 
-struct ASTTypeInfo {
-	enum Primitive {
-		Void, // Maybe
-		Short,
-		Int,
-		Long,
-		Float,
-		Double,
+enum ASTPrimitiveType {
+	Void, // Maybe
+	Bool,
+	Short,
+	Int,
+	Long,
+	Float,
+	Double,
+	Extended,
+	Character,
 
-		Character,
-		Function,
+	String, // Character array
+	Function,
+
+	Array, // Pointer + const length // on stack or heap allocated
+	DynamicArray, // Pointer + length // heap only
+	Pointer,
+
+	Custom, // should be replaced with struct or class or whatever
+}
+
+struct ASTTypeInfo {
+	ASTPrimitiveType type;
+	
+	union {
+		NumberType numberType;
+		UserType userType;
+		PointerType pointerType;
+		ArrayType arrayType;
+		PointerType dynArrayType; // Pointer type because they're identical anyway
 	}
 
-	Primitive primitive;
-	uint pointerLevel;
-	bool unsigned;
+	struct NumberType {
+		bool isUnsigned;
+	}
+
+	struct UserType {
+		char[] name;
+	}
+
+	struct PointerType {
+		ASTTypeInfo* pointedType;
+	}
+
+	struct ArrayType {
+		ASTTypeInfo* pointedType;
+		ASTNode* numOfElementsExpr;
+	}
 }
 
 struct ASTLiteralInfo {
@@ -132,4 +166,25 @@ struct ASTLiteralInfo {
 struct ASTFunctionInfo {
 	ASTNode* parameterList;
 	ASTNode* returnType;
+}
+
+//enum ASTLoopType {
+//	For, While, Do, Foreach,
+//}
+
+struct ASTLoopInfo {
+	//ASTLoopType type;
+	char[] label = null;
+
+	ASTNode* initStmt = null; // for, foreach (under the hood)
+	ASTNode* condition = null;
+	ASTNode* postStmt = null; // for, foreach (under the hood)
+
+	bool isPostCondition = false; // do while
+}
+
+struct ASTIfInfo {
+	ASTNode* condition = null;
+	ASTNode* truePath = null;
+	ASTNode* falsePath = null; // optional
 }
