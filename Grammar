@@ -1,86 +1,161 @@
-Program:
-	[Statement ';']*
+///////// Start symbol ///////// done
 
-Statement:
-	Assignment
-	Declaration
-	FunctionDeclaration
-	FunctionDefinition
-	FunctionCall
-	StatementExpression
-	Return
-	Block
+Program -> StatementList $
 
-Expression:
-	'(' Expression ')'
-	Expression ',' Expression
-	Expression BinaryOp Expression
-	UnaryOp Expression
-	FunctionCall
-	Assignment
-	identifier
-	number
+///////// Statement ///////// underway
 
-Return:
-	'return' Expression
+StatementList -> Statement StatementList
+StatementList -> ə
 
-Assignment:
-	identifier '=' Expression
+Statement -> DeclAssignOrFuncCall 
+Statement -> FuncDeclOrDef 
+Statement -> Return
+Statement -> Block
+Statement -> ConditionalStatement
+Statement -> Loop
 
-Declaration:
-	identifier Type ['=' Expression]
-	// Type inference
-	// Const qualifiers 
+Statement -> 'break' [identifier] ';'
+Statement -> 'continue' [identifier] ';' // Add a way to specify which loop to continue
 
-FunctionDeclaration:
-	'func' identifier ['(' [ArgumentList] ')'] ['->' Type]
+///////// DeclAssignOrFuncCall ///////// done
 
-FunctionDefinition:
-	FunctionDeclaration Block
-	
-FunctionCall:
-	identifier '(' [ArgumentList] ')'
+DeclAssignOrFuncCall -> identifier OptionalType OptionalAssign ';'
+DeclAssignOrFuncCall -> identifier ArraySubscript AssignmentStub ';'
+DeclAssignOrFuncCall -> identifier FuncCall ';'
 
-Block:
-	'{' [Statement ';']* '}'
+OptionalType -> Type
+OptionalType -> ə
 
-Argument:
-	[identifier] Type
+OptionalAssign -> AssignmentStub
+OptionalAssign -> ə
 
-ArgumentList:
- 	Argument [',' Argument]*
+AssignmentStub -> '=' Expr
 
-BinaryOp:
-	'+'
-	'-'
-	'*'
-	'/'
+Block -> '{' StatementList '}'
+Block -> '{' '}'
 
-UnaryOp:
-	'-'
-	'@' // Deref
-	'^' // Address of
-	'!'
+///////// Func call ///////// done
 
-identifier:
-	[A-Za-z_][A-Za-z_0-9]* // Include unicode eventually
+FuncCall -> '(' ArgumentList ')'
 
-Type:
-	void
+ArgumentList -> NonTupleExpr ',' ArgumentList
+ArgumentList -> NonTupleExpr
+ArgumentList -> ə
 
-	[u]int8
-	[u]int16
-	[u]int32
-	[u]int64
-	float32
-	float64
+///////// Func Declarations and Definitions ///////// done
 
-	[u]char
+FuncDeclOrDef -> 'func' identifier FuncDeclParam FuncDeclType ';'
+FuncDeclOrDef -> 'func' identifier FuncDeclParam FuncDeclType Block
 
-	'func' ['(' [ArgumentList] ')'] ['->' Type]
+FuncDeclParam -> '(' ParameterList ')'
+FuncDeclParam -> ə
 
-	Type '[' [identifier|number] ']' // Static/Dynamic Array
-	Type '^' // Pointer
+FuncDeclType -> '->' Type
+FuncDeclType -> ə
 
-number:
-	[0-9][0-9_]*['.'[0-9_]*]
+ParameterList -> Parameter ',' ParameterList
+ParameterList -> Parameter
+ParameterList -> ə
+
+Parameter -> identifier Type
+Parameter -> Type
+
+Return -> 'return' Expr ';'
+
+///////// EXPRESSIONS ///////// underway
+
+Expr -> ComparisonOpPrec Tuple
+Tuple -> ',' ComparisonOpPrec Tuple
+Tuple -> ə
+
+NonTupleExpr -> ComparisonOpPrec
+
+ComparisonOpPrec -> BinaryOpAddPrec ComparisonOpPrecR
+ComparisonOpPrecR -> '==' BinaryOpAddPrec
+ComparisonOpPrecR -> '!=' BinaryOpAddPrec
+ComparisonOpPrecR -> '<=' BinaryOpAddPrec
+ComparisonOpPrecR -> '>=' BinaryOpAddPrec
+ComparisonOpPrecR -> '<' BinaryOpAddPrec
+ComparisonOpPrecR -> '>' BinaryOpAddPrec
+ComparisonOpPrecR -> ə
+
+BinaryOpAddPrec -> BinaryOpMulPrec BinaryOpAddPrecR 
+BinaryOpAddPrecR -> '+' BinaryOpMulPrec BinaryOpAddPrecR
+BinaryOpAddPrecR -> '-' BinaryOpMulPrec BinaryOpAddPrecR
+BinaryOpAddPrecR -> ə
+
+BinaryOpMulPrec -> UnaryOp BinaryOpMulPrecR 
+BinaryOpMulPrecR -> '*' UnaryOp BinaryOpMulPrecR
+BinaryOpMulPrecR -> '/' UnaryOp BinaryOpMulPrecR
+BinaryOpMulPrecR -> ə
+
+UnaryOp -> '++' UnaryOp
+UnaryOp -> '--' UnaryOp
+UnaryOp -> '-' UnaryOp
+UnaryOp -> '@' UnaryOp // Address of
+UnaryOp -> '^' UnaryOp // Deref
+UnaryOp -> '!' UnaryOp
+UnaryOp -> ExprTerm
+
+ExprTerm -> '(' Expr ')'
+ExprTerm -> identifier FuncCall
+ExprTerm -> identifier ArraySubscript
+ExprTerm -> identifier AssignmentStub
+ExprTerm -> identifier
+ExprTerm -> number
+ExprTerm -> languageConstant
+ExprTerm -> '"' string '"'
+
+languageConstant -> true
+languageConstant -> false
+languageConstant -> null
+
+ArraySubscript -> '[' Expr ']'
+
+///////// Type ///////// underway
+
+Type -> TypeModifiers
+
+TypeModifiers -> BaseType TypeModifiersR
+TypeModifiersR -> '^' TypeModifiersR
+TypeModifiersR -> '[' Expr ']' TypeModifiersR
+TypeModifiersR -> '[]' TypeModifiersR
+TypeModifiersR -> ə
+
+BaseType -> identifier
+BaseType -> type
+
+type -> void
+type -> u?short
+type -> u?int
+type -> u?long
+
+type -> u?char
+type -> bool
+type -> string
+
+type -> float
+type -> double
+type -> extended // 80-bit
+
+// Complex types?
+
+///////// Conditional Statements ///////// done
+
+ConditionalStatement -> 'if' Condition Statement OptionalElseblock
+
+Condition -> '(' Expr ')'
+
+OptionalElseblock -> 'else' Statement
+OptionalElseblock -> ə
+
+///////// Loops ///////// underway
+
+Loop -> 'for' '(' Statement ';' Expression ';' Expression ')' [identifier] Statement // C style for
+Loop -> 'for' [identifier] Statement // infinite loop // TODO: rename to something catchy maybe
+
+Loop -> 'while' '(' Expr ')' [identifier] Statement // c style while
+Loop -> 'do' [identifier] Statement 'while' '(' Expr ')' ';' // c style do while (maybe find a new way)
+
+// V2 but may as well define now
+Loop -> 'foreach' '(' identifier 'in' Expr ')' [identifier] Statement // C# like (as much as I don't want that)

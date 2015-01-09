@@ -81,7 +81,7 @@ struct ASTNode {
 		string s = "(" ~ to!string(type);
 
 		if(typeinfo){
-			s ~= " <" ~ to!string(typeinfo.type) ~ ">";
+			s ~= " <" ~ typeinfo.toString ~ ">";
 		}
 
 		if(left){
@@ -110,7 +110,7 @@ struct ASTNode {
 }
 
 enum ASTPrimitiveType {
-	Void, // Maybe
+	Void,
 	Bool,
 	Short,
 	Int,
@@ -127,7 +127,7 @@ enum ASTPrimitiveType {
 	DynamicArray, // Pointer + length // heap only
 	Pointer,
 
-	Custom, // should be replaced with struct or class or whatever
+	Custom, // should be replaced with struct or class or whatever in later stage
 }
 
 struct ASTTypeInfo {
@@ -156,6 +156,20 @@ struct ASTTypeInfo {
 	struct ArrayType {
 		ASTTypeInfo* pointedType;
 		ASTNode* numOfElementsExpr;
+	}
+
+	string toString(){
+		if(type == ASTPrimitiveType.Custom){
+			return userType.name.idup;
+		}else if(type == ASTPrimitiveType.Pointer){
+			return pointerType.pointedType.toString ~ "^";
+		}else if(type == ASTPrimitiveType.Array){
+			return pointerType.pointedType.toString ~ "[static]";
+		}else if(type == ASTPrimitiveType.DynamicArray){
+			return pointerType.pointedType.toString ~ "[dyn]";
+		}
+
+		return to!string(type);
 	}
 }
 

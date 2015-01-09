@@ -6,18 +6,18 @@
 
 aBigFloat extended = 1.0;
 
-// if(1+2 != 3+4*anInt){
-// 	f1();
+if(1+2 != 3+4*anInt){
+	f1();
 
-// }else if(c2){
-// 	for(i int = 0; i < 10; ++i) f1();
-// 	for f2(1, 2, 3);
-// 	while(--anInt > 0) f2(4, 5, 6);
-// 	do f2(7, 8, 9); while(false);
+}else if(c2){
+	for(i int = 0; i < 10; ++i) f1();
+	for f2(1, 2, 3);
+	while(--anInt > 0) f2(4, 5, 6);
+	do f2(7, 8, 9); while(false);
 
-// }else{
-// 	f3();
-// }
+}else{
+	f3();
+}
 
 // aShort short = 1;
 // anExpression long = (aShort = 2), 1 + -aShort * 3 * (4 + 5);
