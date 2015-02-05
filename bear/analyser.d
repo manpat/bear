@@ -60,13 +60,13 @@ class Scope {
 }
 
 class SymbolTable {
-	struct Node {
+	static struct Node {
 		char[] name;
 		Symbol symbol;
 		Node* next = null;
 	}
 
-	struct Bucket{
+	static struct Bucket{
 		Node* first = null;
 		Node* last = null;
 	}

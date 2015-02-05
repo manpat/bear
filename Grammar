@@ -5,9 +5,9 @@ Program -> StatementList $
 ///////// Statement ///////// underway
 
 StatementList -> Statement StatementList
-StatementList -> ə
+StatementList -> ε
 
-Statement -> DeclAssignOrFuncCall 
+Statement -> IdentifierStatement 
 Statement -> FuncDeclOrDef 
 Statement -> Return
 Statement -> Block
@@ -17,17 +17,17 @@ Statement -> Loop
 Statement -> 'break' [identifier] ';'
 Statement -> 'continue' [identifier] ';' // Add a way to specify which loop to continue
 
-///////// DeclAssignOrFuncCall ///////// done
+///////// IdentifierStatement ///////// done
 
-DeclAssignOrFuncCall -> identifier OptionalType OptionalAssign ';'
-DeclAssignOrFuncCall -> identifier ArraySubscript AssignmentStub ';'
-DeclAssignOrFuncCall -> identifier FuncCall ';'
+IdentifierStatement -> identifier OptionalType OptionalAssign ';'
+IdentifierStatement -> identifier ArraySubscript AssignmentStub ';'
+IdentifierStatement -> identifier FuncCall ';'
 
 OptionalType -> Type
-OptionalType -> ə
+OptionalType -> ε
 
 OptionalAssign -> AssignmentStub
-OptionalAssign -> ə
+OptionalAssign -> ε
 
 AssignmentStub -> '=' Expr
 
@@ -40,7 +40,7 @@ FuncCall -> '(' ArgumentList ')'
 
 ArgumentList -> NonTupleExpr ',' ArgumentList
 ArgumentList -> NonTupleExpr
-ArgumentList -> ə
+ArgumentList -> ε
 
 ///////// Func Declarations and Definitions ///////// done
 
@@ -48,14 +48,14 @@ FuncDeclOrDef -> 'func' identifier FuncDeclParam FuncDeclType ';'
 FuncDeclOrDef -> 'func' identifier FuncDeclParam FuncDeclType Block
 
 FuncDeclParam -> '(' ParameterList ')'
-FuncDeclParam -> ə
+FuncDeclParam -> ε
 
 FuncDeclType -> '->' Type
-FuncDeclType -> ə
+FuncDeclType -> ε
 
 ParameterList -> Parameter ',' ParameterList
 ParameterList -> Parameter
-ParameterList -> ə
+ParameterList -> ε
 
 Parameter -> identifier Type
 Parameter -> Type
@@ -66,7 +66,7 @@ Return -> 'return' Expr ';'
 
 Expr -> ComparisonOpPrec Tuple
 Tuple -> ',' ComparisonOpPrec Tuple
-Tuple -> ə
+Tuple -> ε
 
 NonTupleExpr -> ComparisonOpPrec
 
@@ -77,17 +77,17 @@ ComparisonOpPrecR -> '<=' BinaryOpAddPrec
 ComparisonOpPrecR -> '>=' BinaryOpAddPrec
 ComparisonOpPrecR -> '<' BinaryOpAddPrec
 ComparisonOpPrecR -> '>' BinaryOpAddPrec
-ComparisonOpPrecR -> ə
+ComparisonOpPrecR -> ε
 
 BinaryOpAddPrec -> BinaryOpMulPrec BinaryOpAddPrecR 
 BinaryOpAddPrecR -> '+' BinaryOpMulPrec BinaryOpAddPrecR
 BinaryOpAddPrecR -> '-' BinaryOpMulPrec BinaryOpAddPrecR
-BinaryOpAddPrecR -> ə
+BinaryOpAddPrecR -> ε
 
 BinaryOpMulPrec -> UnaryOp BinaryOpMulPrecR 
 BinaryOpMulPrecR -> '*' UnaryOp BinaryOpMulPrecR
 BinaryOpMulPrecR -> '/' UnaryOp BinaryOpMulPrecR
-BinaryOpMulPrecR -> ə
+BinaryOpMulPrecR -> ε
 
 UnaryOp -> '++' UnaryOp
 UnaryOp -> '--' UnaryOp
@@ -120,7 +120,7 @@ TypeModifiers -> BaseType TypeModifiersR
 TypeModifiersR -> '^' TypeModifiersR
 TypeModifiersR -> '[' Expr ']' TypeModifiersR
 TypeModifiersR -> '[]' TypeModifiersR
-TypeModifiersR -> ə
+TypeModifiersR -> ε
 
 BaseType -> identifier
 BaseType -> type
@@ -147,15 +147,18 @@ ConditionalStatement -> 'if' Condition Statement OptionalElseblock
 Condition -> '(' Expr ')'
 
 OptionalElseblock -> 'else' Statement
-OptionalElseblock -> ə
+OptionalElseblock -> ε
 
 ///////// Loops ///////// underway
 
-Loop -> 'for' '(' Statement ';' Expression ';' Expression ')' [identifier] Statement // C style for
-Loop -> 'for' [identifier] Statement // infinite loop // TODO: rename to something catchy maybe
+Loop -> 'for' '(' Statement ';' Expression ';' Expression ')' LoopLabel Statement // C style for
+Loop -> 'for' LoopLabel Statement // infinite loop // TODO: rename to something catchy maybe
 
-Loop -> 'while' '(' Expr ')' [identifier] Statement // c style while
-Loop -> 'do' [identifier] Statement 'while' '(' Expr ')' ';' // c style do while (maybe find a new way)
+Loop -> 'while' '(' Expr ')' LoopLabel Statement // c style while
+Loop -> 'do' LoopLabel Statement 'while' '(' Expr ')' ';' // c style do while (maybe find a new way)
 
 // V2 but may as well define now
-Loop -> 'foreach' '(' identifier 'in' Expr ')' [identifier] Statement // C# like (as much as I don't want that)
+Loop -> 'foreach' '(' identifier 'in' Expr ')' LoopLabel Statement // C# like (as much as I don't want that)
+
+LoopLabel -> '=' identifier
+LoopLabel -> ε

@@ -40,7 +40,9 @@ struct ASTNode {
 		ArraySubscript, // left = ident, right = expr
 
 		ConditionalStatement, // ifinfo
-		Loop, // left = expr or null, right = statement
+		Loop, // left = expr or null, right = statement, loopinfo
+
+		Break, Continue, // name = label or null
 
 		Identifier, // name
 		Type, // typeinfo
@@ -78,6 +80,12 @@ struct ASTNode {
 		}
 
 		string s = "(" ~ to!string(type);
+
+		if(name){
+			s ~= " \"" ~ to!string(name) ~ "\"";
+		}else if(loopinfo && loopinfo.label){
+			s ~= " \"" ~ to!string(loopinfo.label) ~ "\"";
+		}
 
 		if(typeinfo){
 			s ~= " <" ~ typeinfo.toString ~ ">";
@@ -141,24 +149,24 @@ struct ASTTypeInfo {
 		FunctionType functionType;
 	}
 
-	struct NumberType {
+	static struct NumberType {
 		bool isUnsigned;
 	}
 
-	struct UserType {
+	static struct UserType {
 		char[] name;
 	}
 
-	struct PointerType {
+	static struct PointerType {
 		ASTTypeInfo* pointedType;
 	}
 
-	struct ArrayType {
+	static struct ArrayType {
 		ASTTypeInfo* pointedType;
 		ASTNode* numOfElementsExpr;
 	}
 
-	struct FunctionType {
+	static struct FunctionType {
 		ASTNode* parameterList;
 		ASTTypeInfo* returnType;
 	}

@@ -5,6 +5,7 @@ Version 1:
 
 	Structs
 	Reference Types + Const, etc...
+	Extern
 
 Version 2:
 	Variadic functions

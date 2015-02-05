@@ -49,6 +49,8 @@ struct Token {
 		For, While,
 		Do, 
 
+		Break, Continue,
+
 		Foreach, In, // Ver 2
 	}
 	
@@ -109,6 +111,9 @@ class Tokeniser {
 			(?P<Do>\bdo\b)					|
 			(?P<In>\bin\b)					|
 			(?P<Foreach>\bforeach\b)		|
+
+			(?P<Break>\bbreak\b)			|
+			(?P<Continue>\bcontinue\b)		|
 
 			(?P<Type>
 				\b(?:void|u?short|u?int|
@@ -301,6 +306,11 @@ private:
 				tok.type = Token.Type.Foreach;
 			}else if(m["In"].length != 0){
 				tok.type = Token.Type.In;
+			
+			}else if(m["Break"].length != 0){
+				tok.type = Token.Type.Break;
+			}else if(m["Continue"].length != 0){
+				tok.type = Token.Type.Continue;
 
 
 			}else if(m["SomethingElse"].length != 0){

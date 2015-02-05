@@ -123,7 +123,7 @@ private:
 		ASTNode* node = null;
 
 		if(Check(TT.Identifier)){
-			node = ParseDeclAssignOrFuncCall();
+			node = ParseIdentifierStatement();
 
 		}else if(Check(TT.Function)){
 			node = ParseFuncDeclOrDef();
@@ -141,6 +141,12 @@ private:
 			|| Check(TT.Do) || Check(TT.Foreach)){ // foreach is v2
 			node = ParseLoop();
 
+		}else if(Check(TT.Break)){
+			node = ParseBreak();
+
+		}else if(Check(TT.Continue)){
+			node = ParseContinue();
+
 		}else{
 			if(!Check(TT.RightBrace))
 				Error("Statements cannot begin with " ~ to!string(next.type));
@@ -151,8 +157,8 @@ private:
 
 	// Declarations and Assignments //////////////////////
 
-	ASTNode* ParseDeclAssignOrFuncCall(){
-		auto __sd = ScopeDebug("ParseDeclAssignOrFuncCall");
+	ASTNode* ParseIdentifierStatement(){
+		auto __sd = ScopeDebug("ParseIdentifierStatement");
 		auto id = ParseIdentifier();
 		ASTNode* node = null;
 
@@ -723,9 +729,7 @@ private:
 			Match(TT.RightParen);
 		}
 
-		if(Check(TT.Identifier)){
-			loopinfo.label = ParseLoopLabel();
-		}
+		loopinfo.label = ParseLoopLabel();
 
 		node.left = ParseStatement();
 
@@ -742,9 +746,7 @@ private:
 		loopinfo.condition = ParseExpression();
 		Match(TT.RightParen);
 
-		if(Check(TT.Identifier)){
-			loopinfo.label = ParseLoopLabel();
-		}
+		loopinfo.label = ParseLoopLabel();
 
 		node.left = ParseStatement();
 
@@ -760,9 +762,7 @@ private:
 
 		Match(TT.Do);
 
-		if(Check(TT.Identifier)){
-			loopinfo.label = ParseLoopLabel();
-		}
+		loopinfo.label = ParseLoopLabel();
 
 		node.left = ParseStatement();
 		Match(TT.While);
@@ -786,11 +786,38 @@ private:
 		return node;
 	}
 
-	// Causes errors
 	char[] ParseLoopLabel(){
-		//auto tok = Match(TT.Identifier);
+		if(auto tok = Accept(TT.Assign)){
+			return Match(TT.Identifier).text;
+		}
 
 		return null;
+	}
+
+	ASTNode* ParseBreak(){
+		auto __sd = ScopeDebug("ParseBreak");
+		auto node = new ASTNode(AT.Break);
+		Match(TT.Break);
+
+		if(auto t = Accept(TT.Identifier)){
+			node.name = t.text;
+		}
+
+		Match(TT.SemiColon);
+		return node;
+	}
+
+	ASTNode* ParseContinue(){
+		auto __sd = ScopeDebug("ParseContinue");
+		auto node = new ASTNode(AT.Continue);
+		Match(TT.Continue);
+
+		if(auto t = Accept(TT.Identifier)){
+			node.name = t.text;
+		}
+
+		Match(TT.SemiColon);
+		return node;
 	}
 
 	// Terminals /////////////////////////////////////////

@@ -35,7 +35,7 @@ func main {
 	}else if(c2){
 		for(i int = 0; i < 10; ++i) f1();
 		for f2(1, 2, 3);
-		while(--anInt > 0) f2(4, 5, 6);
+		while(--anInt > 0) = NamedLoop f2(4, 5, 6);
 		do f2(7, 8, 9); while(false);
 
 	}else{
