@@ -52,6 +52,8 @@ struct Token {
 		Break, Continue,
 
 		Foreach, In, // Ver 2
+
+		TypeDecl, Struct,
 	}
 	
 	Type type;
@@ -124,6 +126,9 @@ class Tokeniser {
 
 			(?P<LanguageConstant>
 				\b(?:true|false|null)\b)	|
+
+			(?P<TypeDecl>\btype\b)				|
+			(?P<Struct>\bstruct\b)			|
 
 			(?P<Comma>,)					|
 
@@ -311,6 +316,11 @@ private:
 				tok.type = Token.Type.Break;
 			}else if(m["Continue"].length != 0){
 				tok.type = Token.Type.Continue;
+			
+			}else if(m["TypeDecl"].length != 0){
+				tok.type = Token.Type.TypeDecl;
+			}else if(m["Struct"].length != 0){
+				tok.type = Token.Type.Struct;
 
 
 			}else if(m["SomethingElse"].length != 0){

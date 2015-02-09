@@ -13,6 +13,7 @@ Statement -> FuncDeclOrDef
 Statement -> Return
 Statement -> Block
 Statement -> ConditionalStatement
+Statement -> TypeDecl
 Statement -> Loop
 
 Statement -> 'break' [identifier]
@@ -173,3 +174,7 @@ Loop -> 'foreach' '(' identifier 'in' Expr ')' LoopLabel Statement // C# like (a
 
 LoopLabel -> '=' identifier
 LoopLabel -> ε
+
+///////// Typedef/Type alias /////////
+
+TypeDecl -> 'type' identifier Type
