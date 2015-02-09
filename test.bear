@@ -16,6 +16,14 @@
 // // 	return arg1;
 // // }
 
+type Thing struct {
+	aField uint;
+	anotherField uint;
+	aString string;
+}
+
+type AnIntType int;
+
 anInt int;
 aLong long;
 aLongNamedThing Thing;

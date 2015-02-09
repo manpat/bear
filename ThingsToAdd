@@ -1,11 +1,13 @@
 Version 1:
 	A better assignment and decl parser because 
-		this one just isn`t going to cut it
+		this one just isn't going to cut it
 	Loops
 
 	Structs
+		typedef
 	Reference Types + Const, etc...
 	Extern
+	Complex types
 
 Version 2:
 	Variadic functions
@@ -26,7 +28,7 @@ Version 2:
 
 	Exceptions
 
-	CTFE - run in interpreter
+	CTFE - run in interpreter / LLVM JIT
 	Metaprogramming
 		static if
 

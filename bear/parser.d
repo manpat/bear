@@ -40,11 +40,11 @@ private:
 	Token* Match(TT type){
 		if(!next){
 			if(type != TT.EOF){
-				throw new Exception("Unexpected EOF");
+				Error("Unexpected EOF");
 			}
 		}else{
 			if(next.type != type){
-				throw new Exception("Expected " ~ to!string(type) ~ ", got " ~ to!string(next.type));
+				Error("Expected " ~ to!string(type) ~ ", got " ~ to!string(next.type));
 			}else{
 				auto c = next;
 				ReadNext();

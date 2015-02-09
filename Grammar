@@ -4,7 +4,8 @@ Program -> StatementList $
 
 ///////// Statement ///////// underway
 
-StatementList -> Statement StatementList
+StatementList -> Statement ';' StatementList
+StatementList -> ';' StatementList // eat extraneous semi-colons
 StatementList -> ε
 
 Statement -> IdentifierStatement 
@@ -14,14 +15,14 @@ Statement -> Block
 Statement -> ConditionalStatement
 Statement -> Loop
 
-Statement -> 'break' [identifier] ';'
-Statement -> 'continue' [identifier] ';' // Add a way to specify which loop to continue
+Statement -> 'break' [identifier]
+Statement -> 'continue' [identifier]
 
 ///////// IdentifierStatement ///////// done
 
-IdentifierStatement -> identifier OptionalType OptionalAssign ';'
-IdentifierStatement -> identifier ArraySubscript AssignmentStub ';'
-IdentifierStatement -> identifier FuncCall ';'
+IdentifierStatement -> identifier OptionalType OptionalAssign
+IdentifierStatement -> identifier ArraySubscript AssignmentStub
+IdentifierStatement -> identifier FuncCall
 
 OptionalType -> Type
 OptionalType -> ε
@@ -34,17 +35,24 @@ AssignmentStub -> '=' Expr
 Block -> '{' StatementList '}'
 Block -> '{' '}'
 
+///////// Declaration /////////
+
+Declaration -> identifier Type OptionalAssign
+
+DeclarationList -> Declaration ';' DeclarationList
+DeclarationList -> ε
+
 ///////// Func call ///////// done
 
 FuncCall -> '(' ArgumentList ')'
 
-ArgumentList -> NonTupleExpr ',' ArgumentList
-ArgumentList -> NonTupleExpr
+ArgumentList -> NonSequenceExpr ',' ArgumentList
+ArgumentList -> NonSequenceExpr
 ArgumentList -> ε
 
 ///////// Func Declarations and Definitions ///////// done
 
-FuncDeclOrDef -> 'func' identifier FuncDeclParam FuncDeclType ';'
+FuncDeclOrDef -> 'func' identifier FuncDeclParam FuncDeclType
 FuncDeclOrDef -> 'func' identifier FuncDeclParam FuncDeclType Block
 
 FuncDeclParam -> '(' ParameterList ')'
@@ -60,15 +68,15 @@ ParameterList -> ε
 Parameter -> identifier Type
 Parameter -> Type
 
-Return -> 'return' Expr ';'
+Return -> 'return' Expr
 
 ///////// EXPRESSIONS ///////// underway
 
-Expr -> ComparisonOpPrec Tuple
-Tuple -> ',' ComparisonOpPrec Tuple
-Tuple -> ε
+Expr -> NonSequenceExpr Sequence
+Sequence -> ',' NonSequenceExpr Sequence
+Sequence -> ε
 
-NonTupleExpr -> ComparisonOpPrec
+NonSequenceExpr -> ComparisonOpPrec
 
 ComparisonOpPrec -> BinaryOpAddPrec ComparisonOpPrecR
 ComparisonOpPrecR -> '==' BinaryOpAddPrec
@@ -97,6 +105,8 @@ UnaryOp -> '^' UnaryOp // Deref
 UnaryOp -> '!' UnaryOp
 UnaryOp -> ExprTerm
 
+// Post-unary
+
 ExprTerm -> '(' Expr ')'
 ExprTerm -> identifier FuncCall
 ExprTerm -> identifier ArraySubscript
@@ -122,6 +132,7 @@ TypeModifiersR -> '[' Expr ']' TypeModifiersR
 TypeModifiersR -> '[]' TypeModifiersR
 TypeModifiersR -> ε
 
+BaseType -> StructType
 BaseType -> identifier
 BaseType -> type
 
@@ -138,7 +149,7 @@ type -> float
 type -> double
 type -> extended // 80-bit
 
-// Complex types?
+StructType -> 'struct' '{' DeclarationList '}'
 
 ///////// Conditional Statements ///////// done
 
@@ -155,7 +166,7 @@ Loop -> 'for' '(' Statement ';' Expression ';' Expression ')' LoopLabel Statemen
 Loop -> 'for' LoopLabel Statement // infinite loop // TODO: rename to something catchy maybe
 
 Loop -> 'while' '(' Expr ')' LoopLabel Statement // c style while
-Loop -> 'do' LoopLabel Statement 'while' '(' Expr ')' ';' // c style do while (maybe find a new way)
+Loop -> 'do' LoopLabel Statement 'while' '(' Expr ')' // c style do while (maybe find a new way)
 
 // V2 but may as well define now
 Loop -> 'foreach' '(' identifier 'in' Expr ')' LoopLabel Statement // C# like (as much as I don't want that)
