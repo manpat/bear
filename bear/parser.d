@@ -11,6 +11,7 @@ class Parser {
 	private alias AT = ASTNode.NodeType;
 	private Token[] tokens;
 	private Token* next;
+	private Token* matched;
 
 	ASTNode* Parse(Token[] _tokens){
 		tokens = _tokens;
@@ -46,11 +47,11 @@ private:
 			if(next.type != type){
 				Error("Expected " ~ to!string(type) ~ ", got " ~ to!string(next.type));
 			}else{
-				auto c = next;
+				matched = next;
 				ReadNext();
-				ScopeDebug.Write("matched " ~ to!string(c.type));
+				ScopeDebug.Write("matched " ~ to!string(matched.type));
 
-				return c;
+				return matched;
 			}
 		}
 
@@ -97,16 +98,23 @@ private:
 		auto __sd = ScopeDebug("ParseStatementList");
 		ASTNode* node = null;
 
-		if(Check(TT.EOF)) return null;
+		while(Accept(TT.SemiColon)) {}
+		if(Check(TT.EOF) || Check(TT.RightBrace)) return null;
 
 		auto first = ParseStatement();
+		if(matched.type != TT.RightBrace) Match(TT.SemiColon);
+
 		if(first){
 			if(!Check(TT.EOF) && !Check(TT.RightBrace)){
 				node = new ASTNode(AT.StatementList);
 				node.list ~= first;
 
 				do{
-					node.list ~= ParseStatement();
+					if(!Accept(TT.SemiColon)){
+						node.list ~= ParseStatement();
+						if(matched.type != TT.RightBrace) 
+							Match(TT.SemiColon);
+					}
 				
 				}while(!Check(TT.EOF) && !Check(TT.RightBrace));
 
@@ -146,6 +154,9 @@ private:
 
 		}else if(Check(TT.Continue)){
 			node = ParseContinue();
+
+		}else if(Check(TT.TypeDecl)){
+			node = ParseTypeDeclaration();
 
 		}else{
 			if(!Check(TT.RightBrace))
@@ -193,7 +204,6 @@ private:
 			node.left = id;
 		}
 
-		Match(TT.SemiColon);
 		return node;
 	}
 
@@ -226,9 +236,39 @@ private:
 
 	ASTNode* ParseBlock(){
 		auto __sd = ScopeDebug("ParseBlock");
+
 		Match(TT.LeftBrace);
 		auto node = ParseStatementList();
 		Match(TT.RightBrace);
+
+		return node;
+	}
+
+	ASTNode* ParseDeclaration(){
+		auto __sd = ScopeDebug("ParseDeclaration");
+
+		auto id = ParseIdentifier();
+		auto type = ParseType();
+		auto assign = ParseOptionalAssign();
+
+		auto node = new ASTNode(AT.Declaration);
+		node.typeinfo = type.typeinfo;
+		node.left = id;
+		node.right = assign;
+
+		return node;
+	}
+
+	ASTNode* ParseDeclarationList(){
+		auto __sd = ScopeDebug("ParseDeclarationList");
+		auto node = new ASTNode(AT.StatementList);
+
+		while(!Check(TT.EOF) && !Check(TT.RightBrace)){
+			while(Accept(TT.SemiColon)) {}; // Ignore semicolons
+
+			node.list ~= ParseDeclaration();
+			if(matched.type != TT.RightBrace) Match(TT.SemiColon);
+		}
 
 		return node;
 	}
@@ -252,10 +292,10 @@ private:
 
 		if(!Check(TT.RightParen)){
 			auto node = new ASTNode(AT.FunctionArgumentList);
-			node.list ~= ParseNonTupleExpression();
+			node.list ~= ParseNonSequenceExpression();
 
 			while(Accept(TT.Comma)){
-				node.list ~= ParseNonTupleExpression();
+				node.list ~= ParseNonSequenceExpression();
 			}
 
 			return node;
@@ -284,8 +324,6 @@ private:
 		if(Check(TT.LeftBrace)){
 			node.type = AT.FunctionDefinition;
 			node.right = ParseBlock();
-		}else{
-			Match(TT.SemiColon);
 		}
 
 		node.typeinfo = typeinfo;
@@ -359,7 +397,6 @@ private:
 		Match(TT.Return);
 		auto node = new ASTNode(AT.ReturnStatement);
 		node.left = ParseExpression();
-		Match(TT.SemiColon);
 
 		return node;
 	}
@@ -368,24 +405,24 @@ private:
 
 	ASTNode* ParseExpression(){
 		auto __sd = ScopeDebug("ParseExpression");
-		auto node = ParseNonTupleExpression();
+		auto node = ParseNonSequenceExpression();
 
-		node = ParseTuple(node);
+		node = ParseSequence(node);
 
 		return node;
 	}
 
-	ASTNode* ParseTuple(ASTNode* node){
+	ASTNode* ParseSequence(ASTNode* node){
 		auto __sd = ScopeDebug("ParseExpressionR");
 
 		if(Check(TT.Comma)){
 			auto first = node;
-			node = new ASTNode(AT.Tuple);
+			node = new ASTNode(AT.Sequence);
 			node.list ~= first;
 
 			do{
 				Match(TT.Comma);
-				node.list ~= ParseNonTupleExpression();
+				node.list ~= ParseNonSequenceExpression();
 				
 			}while(Check(TT.Comma));
 		}
@@ -394,7 +431,7 @@ private:
 	}
 
 	// Just for convenience
-	alias ParseNonTupleExpression = ParseComparisonOpPrecedence;
+	alias ParseNonSequenceExpression = ParseComparisonOpPrecedence;
 
 	ASTNode* ParseComparisonOpPrecedence(){
 		auto __sd = ScopeDebug("ParseComparisonOpPrecedence");
@@ -619,6 +656,11 @@ private:
 	
 	ASTNode* ParseBaseType(){
 		auto __sd = ScopeDebug("ParseBaseType");
+
+		if(Check(TT.Struct)){
+			return ParseStruct();
+		}
+
 		auto tok = Accept(TT.Identifier);
 		if(!tok){
 			tok = Match(TT.Type);
@@ -656,6 +698,27 @@ private:
 		}
 
 		node.typeinfo = typeinfo;
+
+		return node;
+	}
+
+	ASTNode* ParseStruct(){
+		auto __sd = ScopeDebug("ParseStruct");
+		Match(TT.Struct);
+		Match(TT.LeftBrace);
+		auto decls = ParseDeclarationList();
+		Match(TT.RightBrace);
+
+		auto typeinfo = new ASTTypeInfo;
+		typeinfo.type = ASTPrimitiveType.Struct;
+
+		foreach(ty; decls.list){
+			typeinfo.aggregateType.fieldTypes ~= ty.typeinfo;
+		}
+
+		auto node = new ASTNode(AT.Type);
+		node.typeinfo = typeinfo;
+		node.left = decls;
 
 		return node;
 	}
@@ -769,7 +832,6 @@ private:
 		Match(TT.LeftParen);
 		loopinfo.condition = ParseExpression();
 		Match(TT.RightParen);
-		Match(TT.SemiColon);
 
 		node.loopinfo = loopinfo;
 		return node;
@@ -816,7 +878,6 @@ private:
 			node.name = t.text;
 		}
 
-		Match(TT.SemiColon);
 		return node;
 	}
 
@@ -874,6 +935,22 @@ private:
 		// Language constants are literals too
 		node.literalinfo = new ASTLiteralInfo;
 		node.literalinfo.text = tok.text;
+
+		return node;
+	}
+
+	// Typedecls, structs, etc... ////////////////////////
+
+	ASTNode* ParseTypeDeclaration(){
+		auto __sd = ScopeDebug("ParseTypeDeclaration");
+
+		Match(TT.TypeDecl);
+		auto id = ParseIdentifier();
+		auto type = ParseType();
+
+		auto node = new ASTNode(AT.TypeDecl);
+		node.name = id.name;
+		node.typeinfo = type.typeinfo;
 
 		return node;
 	}

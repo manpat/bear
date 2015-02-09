@@ -17,7 +17,7 @@ struct ASTNode {
 		FunctionParameterList, // list = [funcparameter*]
 		FunctionParameter, // left = [ident], right = type
 
-		Tuple, // list = [nontuple expr*] 
+		Sequence, // list = [nontuple expr*] 
 		Block, // list = [statement*]
 
 		// left = expr, right = expr
@@ -45,9 +45,11 @@ struct ASTNode {
 		Break, Continue, // name = label or null
 
 		Identifier, // name
-		Type, // typeinfo
 		Number, // literalinfo
 		String, // literalinfo
+		Type, // typeinfo
+
+		TypeDecl, // name, typeinfo
 
 		TrueConstant,
 		FalseConstant,
@@ -134,6 +136,7 @@ enum ASTPrimitiveType {
 	DynamicArray, // Pointer + length // heap only
 	Pointer,
 
+	Struct,
 	Custom, // should be replaced with struct or class or whatever in later stage
 }
 
@@ -147,6 +150,7 @@ struct ASTTypeInfo {
 		ArrayType arrayType;
 		PointerType dynArrayType; // Pointer type because they're identical anyway
 		FunctionType functionType;
+		AggregateType aggregateType;
 	}
 
 	static struct NumberType {
@@ -155,6 +159,10 @@ struct ASTTypeInfo {
 
 	static struct UserType {
 		char[] name;
+	}
+
+	static struct AggregateType {
+		ASTTypeInfo*[] fieldTypes;
 	}
 
 	static struct PointerType {
@@ -180,6 +188,14 @@ struct ASTTypeInfo {
 			return pointerType.pointedType.toString ~ "[static]";
 		}else if(type == ASTPrimitiveType.DynamicArray){
 			return pointerType.pointedType.toString ~ "[dyn]";
+		}else if(type == ASTPrimitiveType.Struct){
+			string s = "struct { ";
+
+			foreach(ti; aggregateType.fieldTypes){
+				s ~= ti.toString ~ "; ";
+			}
+
+			return s ~ "}";
 		}
 
 		return to!string(type);

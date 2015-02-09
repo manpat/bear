@@ -71,7 +71,7 @@ class Tokeniser {
 		auto tokenRegex = ctRegex!(`
 			(?P<Comment>(?://[^\n]*|
 				/\*.*\*/))					|
-			(?P<SemiColon>(?:;)+)			|
+			(?P<SemiColon>;)				|
 			(?P<String>".*?(?<!\\)")		|
 
 			(?P<LeftParen>\()				|
